@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
+
 const features = [{
   title: "Mindful Moments",
   description: "Take a breather with short, guided mindfulness exercises to calm your mind and body in just a few minutes.",
@@ -19,10 +20,12 @@ const features = [{
         <span className="text-2xl">🌙</span>
       </div>
 }];
+
 const benefits = ["Affordable Emotional Care", "Instant Emotional Support", "Confidential Conversations", "Boost Your Mental Health", "Effective Stress Relief", "Personalized Guidance", "Empower Your Mind", "24/7 Support Access"];
+
 export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
-  return <div className="min-h-screen bg-pattern">
+  return <div className="min-h-screen bg-pattern page-container">
       {/* Decorative Elements */}
       <svg className="decorative-line absolute top-20 left-0 w-64 h-64 -z-10" viewBox="0 0 200 200">
         <path d="M 0,100 C 20,80 50,20 100,100 S 180,120 200,100" />
@@ -34,9 +37,9 @@ export default function Index() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-64 px-4">
+      <section className="pt-32 pb-64 px-4 section-container">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h1 className="text-5xl md:text-6xl font-bold gradient-text animate-fade-up tracking-tight">
+          <h1 className="text-5xl md:text-6xl font-bold gradient-text animate-fade-up tracking-tight leading-tight">
             Mental Health Therapist.
           </h1>
           <p className="text-xl text-gray-600 animate-fade-up leading-relaxed" style={{
@@ -58,7 +61,7 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-white to-blue-50">
+      <section className="py-20 px-4 section-container">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
@@ -69,7 +72,7 @@ export default function Index() {
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => <div key={feature.title} className="p-8 rounded-3xl bg-white hover:shadow-lg transition-shadow duration-300 animate-fade-up" style={{
+            {features.map((feature, index) => <div key={feature.title} className="p-8 rounded-3xl bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300 animate-fade-up border border-white/40" style={{
             animationDelay: `${index * 0.2}s`
           }}>
                 <div className="mb-6">{feature.icon}</div>
@@ -81,7 +84,7 @@ export default function Index() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-4 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+      <section className="py-20 px-4 overflow-hidden section-container">
         <div className="max-w-full space-y-4">
           <div className="flex gap-4 sliding-container">
             {[...benefits.slice(0, 4), ...benefits.slice(0, 4)].map((benefit, index) => <div key={`${benefit}-${index}-1`} className="benefit-item">
@@ -99,7 +102,7 @@ export default function Index() {
       </section>
 
       {/* Get Started Section */}
-      <section className="py-20 px-4 text-center relative bg-gradient-to-b from-white via-[#E8EFFF] to-transparent backdrop-blur-sm">
+      <section className="py-20 px-4 text-center relative section-container">
         <svg className="decorative-line absolute bottom-0 left-1/2 w-96 h-96 -z-10 transform -translate-x-1/2" viewBox="0 0 200 200">
           <path d="M 0,100 C 50,150 150,50 200,100" />
         </svg>
