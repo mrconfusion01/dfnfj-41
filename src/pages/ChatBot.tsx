@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,14 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useChat } from "@/hooks/useChat";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
-
-interface Message {
-  id: number;
-  content: string;
-  isAi: boolean;
-}
 
 interface ChatSession {
   id: number;
@@ -28,49 +22,27 @@ interface ChatSession {
 
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState("llama-3.1-405b");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isConversationMode, setIsConversationMode] = useState(false);
   const [welcomeMessage] = useState(() => welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [currentStreamedText, setCurrentStreamedText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
-  const [chatHistory, setChatHistory] = useState<ChatSession[]>([{
-    id: 1,
-    title: "Previous Session",
-    date: "2 hours ago"
-  }, {
-    id: 2,
-    title: "Anxiety Discussion",
-    date: "Yesterday"
-  }, {
-    id: 3,
-    title: "Weekly Check-in",
-    date: "2 days ago"
-  }]);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  
+  const { messages, isLoading, sendMessage } = useChat();
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const {
-    fetchProfile
-  } = useProfile();
-  const {
-    toast
-  } = useToast();
+  const { fetchProfile } = useProfile();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     const loadUserProfile = async () => {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const profile = await fetchProfile(user.id);
         setUserProfile(profile);
@@ -102,11 +74,7 @@ export default function ChatBot() {
     const checkScroll = () => {
       const container = chatContainerRef.current;
       if (!container) return;
-      const {
-        scrollTop,
-        scrollHeight,
-        clientHeight
-      } = container;
+      const { scrollTop, scrollHeight, clientHeight } = container;
       const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 100;
       setShowScrollButton(!isAtBottom);
     };
@@ -124,40 +92,13 @@ export default function ChatBot() {
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const simulateStreamingResponse = async (response: string) => {
-    try {
-      setIsTyping(true);
-      setCurrentStreamedText("");
-      let accumulatedText = "";
-      for (let i = 0; i < response.length; i++) {
-        if (!isTyping) break;
-        accumulatedText += response[i];
-        setCurrentStreamedText(accumulatedText);
-        await new Promise(resolve => setTimeout(resolve, 30));
-      }
-      if (isTyping) {
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          content: response,
-          isAi: true
-        }]);
-        setTimeout(scrollToBottom, 100);
-      }
-    } finally {
-      setIsTyping(false);
-      setCurrentStreamedText("");
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || isTyping) return;
+    if (!prompt.trim() || isLoading) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -167,19 +108,10 @@ export default function ChatBot() {
 
     const userMessage = prompt.trim();
     setIsConversationMode(true);
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      content: userMessage,
-      isAi: false
-    }]);
     setPrompt("");
     setTimeout(scrollToBottom, 100);
-    const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
-    await simulateStreamingResponse(response);
-  };
-
-  const stopResponse = () => {
-    setIsTyping(false);
+    
+    await sendMessage(userMessage);
   };
 
   const toggleSidebar = () => {
@@ -188,7 +120,6 @@ export default function ChatBot() {
 
   const handleNewChat = () => {
     setIsConversationMode(false);
-    setMessages([]);
     setIsSidebarOpen(false);
   };
 
@@ -207,7 +138,8 @@ export default function ChatBot() {
     }
   };
 
-  return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
       <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
         <AlertDialogContent className="bg-gray-50 rounded-3xl">
           <AlertDialogHeader>
@@ -353,7 +285,8 @@ export default function ChatBot() {
       </header>
 
       <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-24">
-        {!isConversationMode ? <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
+        {!isConversationMode ? (
+          <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
             <div className="text-center space-y-6 mb-8">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800 animate-[fade-in_0.5s_ease-out,scale-in_0.3s_ease-out] opacity-0 [animation-fill-mode:forwards] [animation-delay:0.2s]">
                 {welcomeMessage}
@@ -366,7 +299,7 @@ export default function ChatBot() {
               <div className="relative">
                 <Input
                   value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
+                  onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Share your thoughts..."
                   className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -381,46 +314,67 @@ export default function ChatBot() {
                 </button>
               </div>
             </form>
-          </div> : <div className="relative h-[calc(100vh-8rem)]">
+          </div>
+        ) : (
+          <div className="relative h-[calc(100vh-8rem)]">
             <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-6 pb-24 pr-1 scroll-smooth">
               <div className="space-y-6 mr-2">
-                {messages.map(message => <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
-                    <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
+                {messages.map((message, index) => (
+                  <div key={index} className={`flex ${message.role === 'assistant' ? "justify-start" : "justify-end"}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl ${message.role === 'assistant' ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
                       {message.content}
                     </div>
-                  </div>)}
-                {isTyping && <div className="flex justify-start">
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
                     <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
-                      {currentStreamedText}
-                      <span className="animate-pulse">|</span>
+                      <span className="animate-pulse">...</span>
                     </div>
-                  </div>}
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
             </div>
             
             <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
-              {showScrollButton && <button onClick={scrollToBottom} className="absolute -top-12 right-4 p-2 rounded-full text-white shadow-lg transition-colors bg-zinc-900 hover:bg-zinc-800">
+              {showScrollButton && (
+                <button onClick={scrollToBottom} className="absolute -top-12 right-4 p-2 rounded-full text-white shadow-lg transition-colors bg-zinc-900 hover:bg-zinc-800">
                   <ArrowDown className="w-5 h-5" />
-                </button>}
+                </button>
+              )}
 
               <form onSubmit={handleSubmit} className="relative">
                 <div className="relative rounded-2xl bg-white/20 backdrop-blur-md p-3">
-                  <Input value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={isTyping ? "Wait for AI to finish..." : "Share your thoughts..."} disabled={isTyping} className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50" />
-                  <button type={isTyping ? "button" : "submit"} onClick={isTyping ? stopResponse : undefined} className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50">
-                    {isTyping ? <Square className="w-4 h-4" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <Input
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder={isLoading ? "Wait for AI to finish..." : "Share your thoughts..."}
+                    disabled={isLoading}
+                    className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  />
+                  <button
+                    type={isLoading ? "button" : "submit"}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <Square className="w-4 h-4" />
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="m22 2-7 20-4-9-9-4Z" />
                         <path d="M22 2 11 13" />
-                      </svg>}
+                      </svg>
+                    )}
                   </button>
                 </div>
               </form>
             </div>
-          </div>}
+          </div>
+        )}
       </main>
 
       <style dangerouslySetInnerHTML={{
-      __html: `
+        __html: `
           .overflow-y-auto::-webkit-scrollbar {
             width: 4px;
           }
@@ -432,6 +386,7 @@ export default function ChatBot() {
             border-radius: 2px;
           }
         `
-    }} />
-    </div>;
+      }} />
+    </div>
+  );
 }

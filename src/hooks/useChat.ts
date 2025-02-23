@@ -8,6 +8,14 @@ interface Message {
   content: string;
 }
 
+interface ChatHistory {
+  id: number;
+  user_id: string;
+  messages: Message[];
+  created_at: string;
+  updated_at: string;
+}
+
 export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +29,7 @@ export const useChat = () => {
 
       const { data, error } = await supabase
         .from('chat_history')
-        .select('messages')
+        .select('*')
         .eq('user_id', user.id)
         .single();
 
@@ -52,11 +60,10 @@ export const useChat = () => {
         return;
       }
 
-      const response = await fetch('/functions/v1/chat-with-groq', {
+      const response = await fetch('/api/chat-with-groq', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
           message,
