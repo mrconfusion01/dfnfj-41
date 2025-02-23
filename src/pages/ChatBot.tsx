@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -142,8 +143,8 @@ export default function ChatBot() {
 
       <main className="container mx-auto px-4 max-w-3xl min-h-screen flex flex-col">
         {!isConversationMode ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-6">
+          <div className="flex-1 flex items-center justify-center flex-col">
+            <div className="text-center space-y-6 mb-8">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
                 {welcomeMessage}
               </h1>
@@ -151,6 +152,34 @@ export default function ChatBot() {
                 Your Mental Therapist
               </p>
             </div>
+            <form onSubmit={handleSubmit} className="w-full max-w-xl">
+              <div className="relative">
+                <Input
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  className="w-full h-10 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <button 
+                  type="submit" 
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-purple-500 text-white flex items-center justify-center hover:bg-purple-600 transition-colors"
+                >
+                  <svg 
+                    width="14" 
+                    height="14" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="m22 2-7 20-4-9-9-4Z"/>
+                    <path d="M22 2 11 13"/>
+                  </svg>
+                </button>
+              </div>
+            </form>
           </div>
         ) : (
           <div className="pt-24 space-y-6 pb-24">
@@ -181,36 +210,38 @@ export default function ChatBot() {
           </div>
         )}
 
-        <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Input
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Share your thoughts..."
-                className="w-full h-12 pl-6 pr-16 text-lg rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <button 
-                type="submit" 
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center hover:bg-purple-600 transition-colors"
-              >
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
+        {isConversationMode && (
+          <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative">
+                <Input
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  className="w-full h-10 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <button 
+                  type="submit" 
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-purple-500 text-white flex items-center justify-center hover:bg-purple-600 transition-colors"
                 >
-                  <path d="m22 2-7 20-4-9-9-4Z"/>
-                  <path d="M22 2 11 13"/>
-                </svg>
-              </button>
-            </div>
-          </form>
-        </div>
+                  <svg 
+                    width="14" 
+                    height="14" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="m22 2-7 20-4-9-9-4Z"/>
+                    <path d="M22 2 11 13"/>
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </main>
     </div>
   );
