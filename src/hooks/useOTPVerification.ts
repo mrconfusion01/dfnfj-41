@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +8,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpExpiryTime, setOtpExpiryTime] = useState<Date | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number>(300);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -17,15 +16,13 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
     let intervalId: NodeJS.Timeout | undefined;
 
     if (otpSent && timeRemaining > 0) {
-      // Start the countdown immediately
       intervalId = setInterval(() => {
         setTimeRemaining((prevTime) => {
-          const newTime = prevTime - 1;
-          if (newTime <= 0) {
+          if (prevTime <= 0) {
             clearInterval(intervalId);
             return 0;
           }
-          return newTime;
+          return prevTime - 1;
         });
       }, 1000);
     }
@@ -35,7 +32,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
         clearInterval(intervalId);
       }
     };
-  }, [otpSent, otpExpiryTime]);
+  }, [otpSent, timeRemaining]);
 
   const sendOTP = async (email: string) => {
     setIsLoading(true);
@@ -49,8 +46,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
 
       if (error) throw error;
 
-      // Reset the timer to 5 minutes (300 seconds)
-      setTimeRemaining(300);
+      setTimeRemaining(300); // Set to 5 minutes (300 seconds)
       setOtpExpiryTime(new Date(Date.now() + 5 * 60 * 1000));
       setOtpSent(true);
       
