@@ -5,6 +5,8 @@ import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, MouseEvent } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -16,6 +18,7 @@ export const AuthForm = ({
   onToggleMode
 }: AuthFormProps) => {
   const [tempEmail, setTempEmail] = useState<string>("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const {
     isLoading,
     otpSent,
@@ -33,6 +36,7 @@ export const AuthForm = ({
   const handleBack = () => {
     setOtpSent(false);
     setIsResettingPassword(false);
+    setShowConfirmation(false);
   };
 
   const handleSignUp = async (data: {
@@ -42,7 +46,11 @@ export const AuthForm = ({
     lastName: string;
     dob: string;
   }) => {
-    await signUp(data);
+    const success = await signUp(data);
+    if (success) {
+      setTempEmail(data.email);
+      setShowConfirmation(true);
+    }
   };
 
   const handleUpdatePassword = async (password: string) => {
@@ -58,6 +66,45 @@ export const AuthForm = ({
       await resetPassword(email);
     }
   };
+
+  if (showConfirmation) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="space-y-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <svg 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  className="text-primary"
+                >
+                  <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2z"/>
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Check your email</h2>
+              <p className="text-gray-600">
+                We've sent a confirmation email to <span className="font-medium">{tempEmail}</span>.
+                Please check your inbox and click the verification link to activate your account.
+              </p>
+            </div>
+            <Button
+              onClick={handleBack}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to sign up
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (otpSent) {
     return (
