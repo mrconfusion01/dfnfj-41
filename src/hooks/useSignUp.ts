@@ -44,6 +44,7 @@ export const useSignUp = () => {
           toast({
             title: "Account already exists",
             description: "Please sign in instead",
+            variant: "destructive",
           });
           navigate('/auth', { state: { isSignIn: true } });
           return false;
