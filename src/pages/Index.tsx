@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -33,21 +32,32 @@ export default function Index() {
     navigate("/auth");
   };
 
-  return <div className="min-h-screen bg-pattern relative">
-      {/* Hero Background */}
-      <div className="hero-background" />
-
-      {/* Decorative Elements */}
-      <svg className="decorative-line absolute top-20 left-0 w-64 h-64 -z-10" viewBox="0 0 200 200">
-        <path d="M 0,100 C 20,80 50,20 100,100 S 180,120 200,100" />
-      </svg>
-      <svg className="decorative-line absolute top-96 right-0 w-96 h-96 -z-10" viewBox="0 0 200 200">
-        <path d="M 0,100 C 50,150 150,50 200,100" />
-      </svg>
+  return <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFE29F] via-[#FFA99F] to-[#FF719A]" />
+        <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]" style={{
+          backgroundSize: '20px 20px'
+        }} />
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M0 40c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.03)'/%3E%3Cpath d='M0 80c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E")`,
+          backgroundSize: '100px 100px'
+        }} />
+        <div className="absolute top-0 left-0 w-[600px] h-[600px]">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3] rounded-full blur-3xl opacity-60" />
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
+        </div>
+        <div className="absolute bottom-0 right-0 w-[700px] h-[700px]">
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#ee9ca7] to-[#ffdde1] rounded-full blur-3xl opacity-50" />
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
+        </div>
+        <div className="absolute top-1/3 right-0 w-[500px] h-[500px]">
+          <div className="absolute inset-0 bg-gradient-to-tl from-[#accbee] to-[#e7f0fd] rounded-full blur-3xl opacity-50" />
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
+        </div>
+      </div>
 
       <Navbar />
       
-      {/* Hero Section */}
       <section className="pt-32 pb-16 px-4 relative">
         <div className="max-w-4xl mx-auto text-center space-y-8 py-[100px]">
           <div className="overflow-hidden">
@@ -85,8 +95,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 bg-gradient-to-b from-white to-blue-50">
+      <section id="features" className="py-20 px-4 bg-white/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
@@ -108,8 +117,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 px-4 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+      <section className="py-20 px-4 overflow-hidden bg-white/70 backdrop-blur-sm">
         <div className="max-w-full space-y-4">
           <div className="flex gap-4 sliding-container">
             {[...benefits.slice(0, 4), ...benefits.slice(0, 4)].map((benefit, index) => <div key={`${benefit}-${index}-1`} className="benefit-item">
@@ -126,8 +134,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Get Started Section */}
-      <section className="py-20 px-4 text-center relative bg-gradient-to-b from-white via-[#E8EFFF] to-transparent backdrop-blur-sm">
+      <section className="py-20 px-4 text-center relative bg-white/80 backdrop-blur-sm">
         <svg className="decorative-line absolute bottom-0 left-1/2 w-96 h-96 -z-10 transform -translate-x-1/2" viewBox="0 0 200 200">
           <path d="M 0,100 C 50,150 150,50 200,100" />
         </svg>
