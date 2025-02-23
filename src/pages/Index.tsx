@@ -35,8 +35,8 @@ export default function Index() {
 
   return <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        {/* Base Gradient - Soft minimal gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#D3E4FD] via-[#F1F0FB] to-[#E5DEFF]" />
+        {/* Base Gradient - Light to dark blue */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#60A5FA] via-[#3B82F6] to-[#1E40AF]" />
         
         {/* Curved Topographic Patterns */}
         <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]" style={{
@@ -48,17 +48,17 @@ export default function Index() {
           backgroundSize: '100px 100px'
         }} />
         
-        {/* Minimal Gradient Blobs */}
+        {/* Blue Gradient Blobs */}
         <div className="absolute top-0 left-0 w-[600px] h-[600px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#D3E4FD] to-[#E5DEFF] rounded-full blur-3xl opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#93C5FD] to-[#2563EB] rounded-full blur-3xl opacity-40" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute bottom-0 right-0 w-[700px] h-[700px]">
-          <div className="absolute inset-0 bg-gradient-to-bl from-[#F1F0FB] to-[#E5DEFF] rounded-full blur-3xl opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#3B82F6] to-[#1E3A8A] rounded-full blur-3xl opacity-30" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px]">
-          <div className="absolute inset-0 bg-gradient-to-tl from-[#E5DEFF] to-[#D3E4FD] rounded-full blur-3xl opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-tl from-[#60A5FA] to-[#2563EB] rounded-full blur-3xl opacity-30" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
       </div>
