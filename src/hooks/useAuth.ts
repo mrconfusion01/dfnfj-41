@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,12 +12,38 @@ export const useAuth = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { toast } = useToast();
 
+  const updateUserProfile = async (userId: string, data: {
+    first_name?: string;
+    last_name?: string;
+    date_of_birth?: string;
+  }) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          date_of_birth: data.date_of_birth,
+        });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
   const signInWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/chatbot`
+          redirectTo: `${window.location.origin}/chatbot`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
@@ -39,12 +66,34 @@ export const useAuth = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) throw error;
+      
+      if (data.user) {
+        // Get user metadata
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw profileError;
+        }
+
+        // Update profile if it exists
+        if (data.user.user_metadata) {
+          await updateUserProfile(data.user.id, {
+            first_name: data.user.user_metadata.first_name,
+            last_name: data.user.user_metadata.last_name,
+            date_of_birth: data.user.user_metadata.date_of_birth,
+          });
+        }
+      }
       
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email
@@ -90,7 +139,7 @@ export const useAuth = () => {
         return false;
       }
 
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -103,6 +152,15 @@ export const useAuth = () => {
       });
       
       if (error) throw error;
+
+      // If sign up is successful and we have a user, update their profile
+      if (authData.user) {
+        await updateUserProfile(authData.user.id, {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          date_of_birth: data.dob
+        });
+      }
       
       setOtpSent(true);
       toast({
