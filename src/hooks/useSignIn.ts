@@ -42,11 +42,11 @@ export const useSignIn = () => {
         return false;
       }
 
-      // First verify if the user exists
+      // Verify if credentials are valid without logging in
       const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: email
-        }
+        page: 1,
+        perPage: 1,
+        query: email
       });
 
       if (userError) throw userError;
