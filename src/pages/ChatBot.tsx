@@ -188,7 +188,7 @@ export default function ChatBot() {
           </div>
         ) : (
           <div className="relative h-[calc(100vh-8rem)]">
-            <div className="absolute inset-0 overflow-y-auto pb-36 space-y-6">
+            <div className="absolute inset-0 overflow-y-auto space-y-6 pb-24">
               {messages.map(message => (
                 <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
                   <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
@@ -206,7 +206,7 @@ export default function ChatBot() {
               )}
             </div>
             
-            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto z-30">
+            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
               <div className="relative">
                 <div className="absolute inset-0 -z-10 bg-gradient-to-t from-white/30 via-white/30 to-transparent backdrop-blur-md" />
                 <form onSubmit={handleSubmit} className="relative z-10">
@@ -215,7 +215,7 @@ export default function ChatBot() {
                       value={prompt} 
                       onChange={e => setPrompt(e.target.value)} 
                       placeholder="Share your thoughts..." 
-                      className="w-full h-15 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                      className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                     />
                     <button 
                       type="submit" 
