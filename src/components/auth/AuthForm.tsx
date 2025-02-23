@@ -4,7 +4,7 @@ import { SignInForm } from "./SignInForm";
 import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { useAuth } from "@/hooks/useAuth";
-import { useState, MouseEvent } from "react";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "../ui/button";
 
@@ -46,25 +46,23 @@ export const AuthForm = ({
     lastName: string;
     dob: string;
   }) => {
-    const success = await signUp(data);
-    if (success) {
-      setTempEmail(data.email);
+    const result = await signUp(data);
+    if (result.success) {
+      setTempEmail(result.email);
       setShowConfirmation(true);
     }
   };
 
-  const handleUpdatePassword = async (password: string) => {
-    await updatePassword(password);
+  const handleSignIn = async (email: string, password: string) => {
+    const success = await signIn(email, password);
+    if (success) {
+      setTempEmail(email);
+      setOtpSent(true);
+    }
   };
 
-  const handlePasswordReset = async (e: MouseEvent) => {
-    e.preventDefault();
-    const target = e.target as HTMLFormElement;
-    const email = target.email?.value;
-    if (email) {
-      setTempEmail(email);
-      await resetPassword(email);
-    }
+  const handleVerifyOtp = async (otp: string) => {
+    await verifyOtp(tempEmail, otp);
   };
 
   if (showConfirmation) {
@@ -109,7 +107,7 @@ export const AuthForm = ({
   if (otpSent) {
     return (
       <OTPForm 
-        onSubmit={(otp) => verifyOtp(tempEmail, otp)}
+        onSubmit={handleVerifyOtp}
         isLoading={isLoading}
         onBack={handleBack}
       />
@@ -119,7 +117,7 @@ export const AuthForm = ({
   if (isResettingPassword && !otpSent) {
     return (
       <PasswordResetForm 
-        onSubmit={handleUpdatePassword}
+        onSubmit={updatePassword}
         isLoading={isLoading}
       />
     );
@@ -131,12 +129,11 @@ export const AuthForm = ({
 
   return (
     <SignInForm
-      onSignIn={signIn}
-      onPasswordReset={handlePasswordReset}
+      onSignIn={handleSignIn}
+      onPasswordReset={resetPassword}
       onToggleMode={onToggleMode}
       signInWithGoogle={signInWithGoogle}
       isLoading={isLoading}
     />
   );
 };
-
