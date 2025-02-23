@@ -77,32 +77,43 @@ export default function ChatBot() {
   const simulateStreamingResponse = async (response: string) => {
     setIsTyping(true);
     setCurrentStreamedText("");
-    for (let i = 0; i < response.length; i++) {
-      if (!isTyping) break;
-      await new Promise(resolve => setTimeout(resolve, 30));
-      setCurrentStreamedText(prev => prev + response[i]);
+    
+    try {
+      for (let i = 0; i < response.length && isTyping; i++) {
+        await new Promise(resolve => setTimeout(resolve, 30));
+        setCurrentStreamedText(prev => prev + response[i]);
+      }
+      
+      if (isTyping) {
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          content: response,
+          isAi: true
+        }]);
+        scrollToBottom();
+      }
+    } catch (error) {
+      console.error("Error in streaming response:", error);
+    } finally {
+      setIsTyping(false);
+      setCurrentStreamedText("");
     }
-    if (isTyping) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        content: response,
-        isAi: true
-      }]);
-    }
-    setIsTyping(false);
-    setCurrentStreamedText("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isTyping) return;
+
+    const userMessage = prompt.trim();
     setIsConversationMode(true);
     setMessages(prev => [...prev, {
       id: Date.now(),
-      content: prompt,
+      content: userMessage,
       isAi: false
     }]);
     setPrompt("");
+    scrollToBottom();
+
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
   };
