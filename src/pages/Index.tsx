@@ -6,17 +6,29 @@ const features = [
   {
     title: "Mindful Moments",
     description: "Take a breather with short, guided mindfulness exercises to calm your mind and body in just a few minutes.",
-    icon: "✨",
+    icon: (
+      <div className="w-12 h-12 rounded-full bg-[#1C1C1C] flex items-center justify-center text-white">
+        <span className="text-2xl">✨</span>
+      </div>
+    ),
   },
   {
     title: "Emotional First Aid Kit",
-    description: "Quick-access tools for moments of crisis, including grounding exercises, breathing techniques, and crisis hotline connections.",
-    icon: "🎯",
+    description: "Quick-access tools for moments of crisis, including grounding exercises, breathing techniques, and crisis hotline connections",
+    icon: (
+      <div className="w-12 h-12 rounded-full bg-[#1C1C1C] flex items-center justify-center text-white">
+        <span className="text-2xl">🎯</span>
+      </div>
+    ),
   },
   {
     title: "Sleep Stories & Meditations",
     description: "Enjoy personalized bedtime stories or guided meditations designed to help you relax, unwind, and fall asleep faster.",
-    icon: "🌙",
+    icon: (
+      <div className="w-12 h-12 rounded-full bg-[#1C1C1C] flex items-center justify-center text-white">
+        <span className="text-2xl">🌙</span>
+      </div>
+    ),
   },
 ];
 
@@ -67,25 +79,24 @@ export default function Index() {
       {/* Features Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-primary">⭐</span>
-              <h2 className="text-3xl font-bold">Features</h2>
+          <div className="mb-16">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-primary text-sm">⭐ Features</span>
             </div>
-            <p className="text-xl text-gray-600">
-              Meet your next-generation mental wellness companion.
-            </p>
+            <h2 className="text-4xl md:text-5xl font-[450] text-[#1C1C1C] leading-tight">
+              Meet your next-generation mental<br />wellness companion.
+            </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className="feature-card animate-fade-up"
+                className="p-8 rounded-3xl bg-white hover:shadow-lg transition-shadow duration-300 animate-fade-up"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <div className="mb-6">{feature.icon}</div>
+                <h3 className="text-2xl font-[450] mb-4 text-[#1C1C1C]">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
