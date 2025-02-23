@@ -233,7 +233,7 @@ export default function ChatBot() {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={confirmDelete} className="text-red-50 bg-red-700 hover:bg-red-600">Delete</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
