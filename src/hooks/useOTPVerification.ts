@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,26 +14,24 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined;
+    let intervalId: NodeJS.Timeout;
 
     if (otpSent && timeRemaining > 0) {
+      // Start the countdown
       intervalId = setInterval(() => {
-        setTimeRemaining((prevTime) => {
-          if (prevTime <= 0) {
+        setTimeRemaining(prev => {
+          if (prev <= 0) {
             clearInterval(intervalId);
             return 0;
           }
-          return prevTime - 1;
+          return prev - 1;
         });
       }, 1000);
-    }
 
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [otpSent, timeRemaining]);
+      // Cleanup on unmount
+      return () => clearInterval(intervalId);
+    }
+  }, [otpSent]); // Only depend on otpSent to prevent re-creating interval
 
   const sendOTP = async (email: string) => {
     setIsLoading(true);
