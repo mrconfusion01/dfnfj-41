@@ -5,6 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import { validateEmail, handleAuthError, handleAuthSuccess } from "@/utils/auth-utils";
 import { useNavigate } from "react-router-dom";
 
+interface ProfileData {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  date_of_birth?: string;
+}
+
 export const useAuth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -18,14 +26,16 @@ export const useAuth = () => {
     date_of_birth?: string;
   }) => {
     try {
+      const profileData: ProfileData = {
+        id: userId,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        date_of_birth: data.date_of_birth
+      };
+
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          id: userId,
-          first_name: data.first_name,
-          last_name: data.last_name,
-          date_of_birth: data.date_of_birth,
-        });
+        .upsert(profileData);
 
       if (error) throw error;
     } catch (error: any) {
