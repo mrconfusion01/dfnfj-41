@@ -57,8 +57,9 @@ export const useSignUp = () => {
         });
 
         toast({
-          title: "Account created",
-          description: "Please check your email to verify your account",
+          title: "Account created successfully! 📧",
+          description: "We've sent you a confirmation email. Please check your inbox and click the verification link to activate your account.",
+          duration: 6000, // Show for longer duration since it's an important message
         });
         return true;
       }
