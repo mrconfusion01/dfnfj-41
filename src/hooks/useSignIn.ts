@@ -110,10 +110,22 @@ export const useSignIn = () => {
         type: 'email'
       });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Invalid code",
+          description: "Please check the code and try again",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       if (!data.session) {
-        throw new Error("No session created after OTP verification");
+        toast({
+          title: "Error",
+          description: "No session created after OTP verification",
+          variant: "destructive",
+        });
+        return false;
       }
 
       toast({
@@ -121,7 +133,6 @@ export const useSignIn = () => {
         description: "Successfully signed in",
       });
 
-      // Only navigate after successful OTP verification
       navigate('/chatbot');
       return true;
     } catch (error: any) {
@@ -133,7 +144,6 @@ export const useSignIn = () => {
       return false;
     } finally {
       setIsLoading(false);
-      setRequiresOTP(false);
     }
   };
 
@@ -146,4 +156,3 @@ export const useSignIn = () => {
     setRequiresOTP
   };
 };
-

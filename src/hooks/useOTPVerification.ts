@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { handleAuthError, handleAuthSuccess } from "@/utils/auth-utils";
+import { handleAuthSuccess } from "@/utils/auth-utils";
 import { useNavigate } from "react-router-dom";
 
 export const useOTPVerification = (isResettingPassword: boolean) => {
@@ -54,7 +54,11 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
         description: "Please check your email for the verification code",
       });
     } catch (error: any) {
-      handleAuthError(error, toast);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +74,14 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
         type: isResettingPassword ? 'recovery' : 'signup'
       });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Invalid code",
+          description: "Please check the code and try again",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       if (isResettingPassword) {
         setOtpSent(false);
@@ -82,13 +93,17 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
         handleAuthSuccess(true, toast);
         navigate('/chatbot');
       }
+      return true;
     } catch (error: any) {
-      handleAuthError(error, toast);
+      toast({
+        title: "Error",
+        description: "Please check the code and try again",
+        variant: "destructive",
+      });
       return false;
     } finally {
       setIsLoading(false);
     }
-    return true;
   };
 
   const formatTimeRemaining = (seconds: number): string => {
