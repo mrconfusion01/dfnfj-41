@@ -12,9 +12,8 @@ export const useProfile = () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
         toast({
-          title: "Email confirmation required",
+          title: "Confirmation email sent! 📧",
           description: "Please check your inbox and confirm your email address to continue.",
-          variant: "destructive",
         });
         throw new Error("Please confirm your email to continue");
       }
@@ -55,9 +54,8 @@ export const useProfile = () => {
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Action required",
+        title: "Action needed",
         description: error.message,
-        variant: "destructive",
       });
       throw error;
     }
@@ -69,9 +67,8 @@ export const useProfile = () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
         toast({
-          title: "Email confirmation required",
+          title: "Confirmation email sent! 📧",
           description: "Please check your inbox and confirm your email address to continue.",
-          variant: "destructive",
         });
         throw new Error("Please confirm your email to continue");
       }
@@ -93,9 +90,8 @@ export const useProfile = () => {
     } catch (error: any) {
       console.error('Error fetching profile:', error);
       toast({
-        title: "Action required",
+        title: "Action needed",
         description: error.message,
-        variant: "destructive",
       });
       return null;
     }
