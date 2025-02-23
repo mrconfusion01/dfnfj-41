@@ -56,8 +56,8 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Auth Form */}
-      <div className="w-1/2 bg-white p-12">
-        <div className="w-full max-w-md space-y-6 mx-auto bg-white rounded-2xl shadow-lg p-8">
+      <div className="w-1/2 bg-white p-12 flex items-center justify-center">
+        <div className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center gap-2">
             <svg width="28" height="28" viewBox="0 0 32 32">
               <defs>
