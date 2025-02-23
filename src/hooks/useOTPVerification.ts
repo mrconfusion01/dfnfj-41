@@ -9,33 +9,33 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpExpiryTime, setOtpExpiryTime] = useState<Date | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number>(300); // Initialize with 5 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState<number>(300);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (otpExpiryTime) {
-      // Immediately set initial time remaining
-      const now = new Date().getTime();
-      const expiry = otpExpiryTime.getTime();
-      setTimeRemaining(Math.max(0, Math.floor((expiry - now) / 1000)));
+    let intervalId: NodeJS.Timeout | undefined;
 
-      interval = setInterval(() => {
-        const now = new Date().getTime();
-        const expiry = otpExpiryTime.getTime();
-        const remaining = Math.max(0, Math.floor((expiry - now) / 1000));
-        setTimeRemaining(remaining);
-
-        if (remaining <= 0) {
-          clearInterval(interval);
-        }
+    if (otpSent && timeRemaining > 0) {
+      // Start the countdown immediately
+      intervalId = setInterval(() => {
+        setTimeRemaining((prevTime) => {
+          const newTime = prevTime - 1;
+          if (newTime <= 0) {
+            clearInterval(intervalId);
+            return 0;
+          }
+          return newTime;
+        });
       }, 1000);
     }
+
     return () => {
-      if (interval) clearInterval(interval);
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
-  }, [otpExpiryTime]);
+  }, [otpSent, otpExpiryTime]);
 
   const sendOTP = async (email: string) => {
     setIsLoading(true);
@@ -49,12 +49,10 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
 
       if (error) throw error;
 
-      // Set expiry time to 5 minutes from now
-      const expiryTime = new Date(Date.now() + 5 * 60 * 1000);
-      setOtpExpiryTime(expiryTime);
-      setOtpSent(true);
-      // Reset timeRemaining to 5 minutes when sending new OTP
+      // Reset the timer to 5 minutes (300 seconds)
       setTimeRemaining(300);
+      setOtpExpiryTime(new Date(Date.now() + 5 * 60 * 1000));
+      setOtpSent(true);
       
       toast({
         title: "OTP Sent",
