@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Github, MessageSquare, User, Menu, X, Heart } from "lucide-react";
+import { Github, MessageSquare, User, Menu, X, Heart, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
@@ -22,6 +22,7 @@ export default function ChatBot() {
   const [isTyping, setIsTyping] = useState(false);
   const [currentStreamedText, setCurrentStreamedText] = useState("");
   const isMobile = useIsMobile();
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const [chatHistory] = useState([{
     id: 1,
     title: "Previous Session",
@@ -35,6 +36,22 @@ export default function ChatBot() {
     title: "Weekly Check-in",
     date: "2 days ago"
   }]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen]);
 
   const simulateStreamingResponse = async (response: string) => {
     setIsTyping(true);
@@ -70,8 +87,13 @@ export default function ChatBot() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleNewChat = () => {
+    setIsConversationMode(false);
+    setMessages([]);
+    setIsSidebarOpen(false);
+  };
+
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
-      {/* Background Elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
         <div className="absolute inset-0 bg-pattern opacity-5" />
@@ -81,8 +103,10 @@ export default function ChatBot() {
         <div className="absolute bottom-40 left-40 w-80 h-80 bg-gradient-to-br from-pink-400/40 to-rose-300/40 rounded-full blur-3xl" />
       </div>
 
-      {/* Sidebar */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}>
+      <div 
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}
+      >
         <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat History</h2>
@@ -92,6 +116,13 @@ export default function ChatBot() {
           </div>
         </div>
         <div className="p-4">
+          <button
+            onClick={handleNewChat}
+            className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span>New Chat</span>
+          </button>
           <div className="space-y-4">
             {chatHistory.map(chat => <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
                 <div className="flex items-center gap-3">
@@ -112,7 +143,6 @@ export default function ChatBot() {
         </div>
       </div>
 
-      {/* Header */}
       <header className="fixed top-4 left-0 right-0 z-40">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mx-4 px-4 py-3 bg-white/30 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg flex items-center justify-between">
@@ -133,7 +163,6 @@ export default function ChatBot() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-20">
         {!isConversationMode ? <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
             <div className="text-center space-y-6 mb-8">
