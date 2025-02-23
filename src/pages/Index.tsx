@@ -65,7 +65,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-primary text-sm">⭐ Features</span>
+              <span className="text-primary font-bold text-xl">🔷 Features</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-[450] text-[#1C1C1C] leading-tight">
               Meet your next-generation mental<br />wellness companion.
