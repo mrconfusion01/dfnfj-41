@@ -26,7 +26,10 @@ export default function Auth() {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Check if user is already logged in
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -36,7 +39,6 @@ export default function Auth() {
     };
     checkSession();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate('/chatbot');
@@ -84,7 +86,6 @@ export default function Auth() {
   };
 
   const validatePassword = (password: string) => {
-    // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     return passwordRegex.test(password);
   };
@@ -160,10 +161,9 @@ export default function Auth() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 md:bg-none">
-      {/* Left Side - Auth Form */}
       <div className="w-full md:w-1/2 p-6 md:p-12 flex items-center justify-center">
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={handleLogoClick} role="button" style={{ cursor: 'pointer' }}>
             <svg width="28" height="28" viewBox="0 0 32 32">
               <defs>
                 <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -195,7 +195,6 @@ export default function Auth() {
             </p>
           </div>
 
-          {/* Social Sign Up Button */}
           <Button 
             type="button"
             variant="outline" 
@@ -288,7 +287,6 @@ export default function Auth() {
         </form>
       </div>
 
-      {/* Right Side - Gradient Background and Content */}
       <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex-col justify-center items-center p-12 text-white">
         <div className="max-w-lg text-center space-y-6">
           <div className="flex items-center justify-center gap-3 mb-8">
