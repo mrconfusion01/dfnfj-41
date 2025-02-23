@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { LogOut } from "lucide-react";
+import { LogOut, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
@@ -156,6 +156,18 @@ export default function ChatBot() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isTyping) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in or create an account to start chatting.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     const userMessage = prompt.trim();
     setIsConversationMode(true);
     setMessages(prev => [...prev, {
@@ -259,18 +271,33 @@ export default function ChatBot() {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
-          <div className="mb-4 p-3 flex items-center gap-3 border-b border-white/20 pb-4">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="font-medium text-sm">{userProfile?.first_name || 'User'}</p>
-            </div>
-          </div>
-          <button onClick={handleLogout} className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span className="text-sm font-medium">Logout</span>
-          </button>
+          {userProfile ? (
+            <>
+              <div className="mb-4 p-3 flex items-center gap-3 border-b border-white/20 pb-4">
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{userProfile.first_name || 'User'}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => navigate('/auth')}
+              className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-blue-500 hover:text-blue-600 transition-colors"
+            >
+              <LogIn className="w-5 h-5" />
+              <span className="text-sm font-medium">Login / Sign up</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -306,8 +333,16 @@ export default function ChatBot() {
             </div>
             <form onSubmit={handleSubmit} className="w-full max-w-xl">
               <div className="relative">
-                <Input value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Share your thoughts..." className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <button type="submit" className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors">
+                <Input
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
+                >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m22 2-7 20-4-9-9-4Z" />
                     <path d="M22 2 11 13" />
