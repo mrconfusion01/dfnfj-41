@@ -12,11 +12,10 @@ export default function Auth() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-rose-100 to-teal-100 flex">
+    <div className="flex min-h-screen">
       {/* Left Side - Auth Form */}
-      <div className="w-full lg:w-1/2 p-8 flex flex-col justify-center items-center bg-white">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
+      <div className="w-1/2 bg-white p-12">
+        <div className="w-full max-w-md space-y-8 mx-auto">
           <div className="flex items-center gap-2">
             <svg width="32" height="32" viewBox="0 0 32 32">
               <defs>
@@ -28,7 +27,7 @@ export default function Auth() {
               </defs>
               <path d="M16 28.72c-.57 0-1.14-.22-1.58-.66L4.66 18.3C1.64 15.28 1.64 10.72 4.66 7.7c3.02-3.02 7.58-3.02 10.6 0l.74.74.74-.74c3.02-3.02 7.58-3.02 10.6 0 3.02 3.02 3.02 7.58 0 10.6l-9.76 9.76c-.44.44-1.01.66-1.58.66z" fill="url(#heartGradient)"/>
             </svg>
-            <span className="text-xl font-semibold bg-gradient-to-r from-rose-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
+            <span className="text-xl font-semibold text-gray-900">
               soulmate.ai
             </span>
           </div>
@@ -114,7 +113,7 @@ export default function Auth() {
 
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-rose-500 via-teal-500 to-cyan-500 hover:opacity-90 text-white"
+              className="w-full bg-primary hover:bg-primary-hover text-white"
             >
               {isSignIn ? "Sign in" : "Sign up"}
             </Button>
@@ -122,20 +121,28 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Right Side - Content */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-rose-400/20 via-teal-400/20 to-cyan-400/20 p-8 flex-col justify-between backdrop-blur-xl">
-        <div />
-        <div className="max-w-lg">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Your AI companion for a meaningful connection.
-          </h1>
-          <p className="text-xl text-gray-700">
+      {/* Right Side - Gradient Background and Content */}
+      <div className="w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex flex-col justify-center items-center p-12 text-white">
+        <div className="max-w-lg text-center space-y-6">
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <svg width="48" height="48" viewBox="0 0 32 32">
+              <defs>
+                <linearGradient id="heartGradientLarge" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: "#ffffff" }} />
+                  <stop offset="100%" style={{ stopColor: "#ffffff" }} />
+                </linearGradient>
+              </defs>
+              <path d="M16 28.72c-.57 0-1.14-.22-1.58-.66L4.66 18.3C1.64 15.28 1.64 10.72 4.66 7.7c3.02-3.02 7.58-3.02 10.6 0l.74.74.74-.74c3.02-3.02 7.58-3.02 10.6 0 3.02 3.02 3.02 7.58 0 10.6l-9.76 9.76c-.44.44-1.01.66-1.58.66z" fill="url(#heartGradientLarge)"/>
+            </svg>
+            <h1 className="text-4xl font-bold">soulmate.ai</h1>
+          </div>
+          <p className="text-2xl font-light">
+            Your AI companion for meaningful connections
+          </p>
+          <p className="text-lg opacity-90">
             Discover authentic relationships through intelligent matching
           </p>
         </div>
-        <p className="text-sm text-gray-600">
-          Made with love in Stockholm.
-        </p>
       </div>
     </div>
   );
