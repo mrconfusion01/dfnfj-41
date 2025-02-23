@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -240,45 +241,65 @@ export default function ChatBot() {
           </div>
         </div>
         <div className="p-4">
-          <button onClick={handleNewChat} className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-            <Plus className="w-5 h-5" />
-            <span>New Chat</span>
-          </button>
-          <div className="space-y-4">
-            {chatHistory.map(chat => <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MessageSquare className="w-5 h-5 text-blue-500" />
-                    <div>
-                      <p className="font-medium text-sm">{chat.title}</p>
-                      <p className="text-xs text-gray-500">{chat.date}</p>
+          {userProfile ? (
+            <>
+              <button onClick={handleNewChat} className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                <Plus className="w-5 h-5" />
+                <span>New Chat</span>
+              </button>
+              <div className="space-y-4">
+                {chatHistory.map(chat => (
+                  <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <MessageSquare className="w-5 h-5 text-blue-500" />
+                        <div>
+                          <p className="font-medium text-sm">{chat.title}</p>
+                          <p className="text-xs text-gray-500">{chat.date}</p>
+                        </div>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button 
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleDeleteSession(chat);
+                            }} 
+                            className="p-2 hover:bg-white/20 rounded-full"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-gray-50 rounded-3xl">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete chat session</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this chat session? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={confirmDelete} className="text-red-50 bg-red-700 hover:bg-red-600">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button onClick={e => {
-                    e.stopPropagation();
-                    handleDeleteSession(chat);
-                  }} className="p-2 hover:bg-white/20 rounded-full">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-gray-50 rounded-3xl">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete chat session</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this chat session? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="text-red-50 bg-red-700 hover:bg-red-600">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>)}
-          </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-48 text-center px-4">
+              <MessageSquare className="w-12 h-12 text-blue-500 mb-4" />
+              <p className="text-gray-600 mb-4">Sign in to view and manage your chat history</p>
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Login / Sign up
+              </button>
+            </div>
+          )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
           {userProfile ? (
