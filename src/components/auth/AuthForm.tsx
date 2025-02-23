@@ -4,6 +4,7 @@ import { SignInForm } from "./SignInForm";
 import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -14,6 +15,7 @@ export const AuthForm = ({
   isSignIn,
   onToggleMode
 }: AuthFormProps) => {
+  const [tempEmail, setTempEmail] = useState<string>("");
   const {
     isLoading,
     otpSent,
@@ -33,10 +35,29 @@ export const AuthForm = ({
     setIsResettingPassword(false);
   };
 
+  const handleSignUp = async (data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    dob: string;
+  }) => {
+    await signUp(data);
+  };
+
+  const handleUpdatePassword = async (password: string) => {
+    await updatePassword(password);
+  };
+
+  const handlePasswordReset = async (email: string) => {
+    setTempEmail(email);
+    await resetPassword(email);
+  };
+
   if (otpSent) {
     return (
       <OTPForm 
-        onSubmit={(otp) => verifyOtp(email, otp)}
+        onSubmit={(otp) => verifyOtp(tempEmail, otp)}
         isLoading={isLoading}
         onBack={handleBack}
       />
@@ -46,20 +67,20 @@ export const AuthForm = ({
   if (isResettingPassword && !otpSent) {
     return (
       <PasswordResetForm 
-        onSubmit={updatePassword}
+        onSubmit={handleUpdatePassword}
         isLoading={isLoading}
       />
     );
   }
 
   if (!isSignIn) {
-    return <SignUpForm onSubmit={signUp} isLoading={isLoading} onToggleMode={onToggleMode} />;
+    return <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} onToggleMode={onToggleMode} />;
   }
 
   return (
     <SignInForm
       onSignIn={signIn}
-      onPasswordReset={resetPassword}
+      onPasswordReset={handlePasswordReset}
       onToggleMode={onToggleMode}
       signInWithGoogle={signInWithGoogle}
       isLoading={isLoading}
