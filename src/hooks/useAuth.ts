@@ -27,25 +27,18 @@ export const useAuth = () => {
     last_name?: string;
     date_of_birth?: string;
     email?: string;
-  }, isNewUser: boolean = false) => {
+  }) => {
     try {
-      // Don't check for session if this is a new user signing up
-      if (!isNewUser) {
-        const { data: session } = await supabase.auth.getSession();
-        if (!session.session) throw new Error('No active session');
-      }
-
-      const profileData: ProfileData = {
-        id: userId,
-        email: data.email || '',
-        first_name: data.first_name,
-        last_name: data.last_name,
-        date_of_birth: data.date_of_birth
-      };
-
       const { error } = await supabase
         .from('profiles')
-        .upsert(profileData, {
+        .upsert({
+          id: userId,
+          email: data.email || '',
+          first_name: data.first_name,
+          last_name: data.last_name,
+          date_of_birth: data.date_of_birth,
+          updated_at: new Date().toISOString()
+        }, {
           onConflict: 'id'
         });
 
@@ -129,13 +122,6 @@ export const useAuth = () => {
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: {
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            date_of_birth: data.dob
-          }
-        }
       });
       
       if (error) throw error;
@@ -147,7 +133,7 @@ export const useAuth = () => {
           first_name: data.firstName,
           last_name: data.lastName,
           date_of_birth: data.dob
-        }, true); // Pass true to indicate this is a new user
+        });
 
         toast({
           title: "Account created",
