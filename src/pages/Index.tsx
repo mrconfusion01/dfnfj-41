@@ -33,38 +33,21 @@ export default function Index() {
     navigate("/auth");
   };
 
-  return <div className="min-h-screen relative overflow-hidden">
-      <div className="absolute inset-0 -z-10">
-        {/* Base Gradient - Light to dark blue */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#60A5FA] via-[#3B82F6] to-[#1E40AF]" />
-        
-        {/* Curved Topographic Patterns */}
-        <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]" style={{
-          backgroundSize: '20px 20px',
-          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50C20 50 20 30 40 30C60 30 60 50 80 50C100 50 100 30 120 30' stroke='rgba(255,255,255,0.05)' fill='none' stroke-width='2'/%3E%3Cpath d='M0 60C20 60 20 40 40 40C60 40 60 60 80 60C100 60 100 40 120 40' stroke='rgba(255,255,255,0.03)' fill='none' stroke-width='2'/%3E%3Cpath d='M0 70C20 70 20 50 40 50C60 50 60 70 80 70C100 70 100 50 120 50' stroke='rgba(255,255,255,0.02)' fill='none' stroke-width='2'/%3E%3C/svg%3E")`,
-          backgroundSize: '100px 100px'
-        }} />
-        
-        {/* Blue Gradient Blobs */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#93C5FD] to-[#2563EB] rounded-full blur-3xl opacity-40" />
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
-        </div>
-        <div className="absolute bottom-0 right-0 w-[700px] h-[700px]">
-          <div className="absolute inset-0 bg-gradient-to-bl from-[#3B82F6] to-[#1E3A8A] rounded-full blur-3xl opacity-30" />
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
-        </div>
-        <div className="absolute top-1/3 right-0 w-[500px] h-[500px]">
-          <div className="absolute inset-0 bg-gradient-to-tl from-[#60A5FA] to-[#2563EB] rounded-full blur-3xl opacity-30" />
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
-        </div>
-      </div>
+  return <div className="min-h-screen bg-pattern relative">
+      {/* Hero Background */}
+      <div className="hero-background" />
+
+      {/* Decorative Elements */}
+      <svg className="decorative-line absolute top-20 left-0 w-64 h-64 -z-10" viewBox="0 0 200 200">
+        <path d="M 0,100 C 20,80 50,20 100,100 S 180,120 200,100" />
+      </svg>
+      <svg className="decorative-line absolute top-96 right-0 w-96 h-96 -z-10" viewBox="0 0 200 200">
+        <path d="M 0,100 C 50,150 150,50 200,100" />
+      </svg>
 
       <Navbar />
       
+      {/* Hero Section */}
       <section className="pt-32 pb-16 px-4 relative">
         <div className="max-w-4xl mx-auto text-center space-y-8 py-[100px]">
           <div className="overflow-hidden">
@@ -102,7 +85,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="features" className="py-20 px-4 bg-white/80 backdrop-blur-sm">
+      {/* Features Section */}
+      <section id="features" className="py-20 px-4 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
@@ -124,7 +108,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20 px-4 overflow-hidden bg-white/70 backdrop-blur-sm">
+      {/* Benefits Section */}
+      <section className="py-20 px-4 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
         <div className="max-w-full space-y-4">
           <div className="flex gap-4 sliding-container">
             {[...benefits.slice(0, 4), ...benefits.slice(0, 4)].map((benefit, index) => <div key={`${benefit}-${index}-1`} className="benefit-item">
@@ -141,7 +126,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-20 px-4 text-center relative bg-white/80 backdrop-blur-sm">
+      {/* Get Started Section */}
+      <section className="py-20 px-4 text-center relative bg-gradient-to-b from-white via-[#E8EFFF] to-transparent backdrop-blur-sm">
         <svg className="decorative-line absolute bottom-0 left-1/2 w-96 h-96 -z-10 transform -translate-x-1/2" viewBox="0 0 200 200">
           <path d="M 0,100 C 50,150 150,50 200,100" />
         </svg>
