@@ -21,16 +21,20 @@ export const usePasswordManagement = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
+      // Use signInWithOtp instead of resetPasswordForEmail
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false // Ensure this is for existing users only
+        }
       });
       
       if (error) throw error;
       
       setIsResettingPassword(true);
       toast({
-        title: "Reset email sent",
-        description: "Please check your email for the password reset code",
+        title: "Code sent",
+        description: "Please check your email for the verification code",
       });
     } catch (error: any) {
       handleAuthError(error, toast);
@@ -39,15 +43,25 @@ export const usePasswordManagement = () => {
     }
   };
 
-  const updatePassword = async (newPassword: string) => {
+  const verifyOtpAndUpdatePassword = async (email: string, otp: string, newPassword: string) => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
+      // First verify the OTP
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email'
+      });
+
+      if (verifyError) throw verifyError;
+
+      // After OTP verification, update the password
+      const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword
       });
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
       toast({
         title: "Password updated",
@@ -65,7 +79,7 @@ export const usePasswordManagement = () => {
 
   return {
     resetPassword,
-    updatePassword,
+    updatePassword: verifyOtpAndUpdatePassword,
     isLoading,
     isResettingPassword,
     setIsResettingPassword
