@@ -42,8 +42,8 @@ export const useSignIn = () => {
         return false;
       }
 
-      // First verify password
-      const { error: signInError, data } = await supabase.auth.signInWithPassword({
+      // First verify password without actually logging in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
@@ -61,18 +61,12 @@ export const useSignIn = () => {
         return false;
       }
 
-      if (!data.user) {
-        toast({
-          title: "Error",
-          description: "No user found with this email",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // If credentials are correct, send OTP
+      // If credentials are correct, send reauthentication OTP
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
+        options: {
+          shouldCreateUser: false // Ensures this is for reauthentication only
+        }
       });
 
       if (otpError) throw otpError;
@@ -82,7 +76,7 @@ export const useSignIn = () => {
         description: "Please check your email for the verification code",
       });
 
-      // Navigate to OTP verification page with email
+      // Navigate to OTP verification page with email and password
       navigate('/auth/verify', { state: { email, password } });
       return true;
     } catch (error: any) {
@@ -101,14 +95,22 @@ export const useSignIn = () => {
     setIsLoading(true);
 
     try {
-      // Verify OTP
-      const { error: verifyError } = await supabase.auth.verifyOtp({
+      // First verify the reauthentication OTP
+      const { error: verifyError, data } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: 'email'
       });
 
       if (verifyError) throw verifyError;
+
+      // After OTP verification, perform the actual login
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) throw signInError;
 
       toast({
         title: "Success",
