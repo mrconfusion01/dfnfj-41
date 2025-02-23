@@ -29,19 +29,12 @@ export const useAuth = () => {
     email?: string;
   }) => {
     try {
-      // First get the existing profile to maintain the email
-      const { data: existingProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', userId)
-        .maybeSingle();
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) throw new Error('No active session');
 
-      if (fetchError) throw fetchError;
-
-      // If no profile exists yet, we'll use the data provided
       const profileData: ProfileData = {
         id: userId,
-        email: existingProfile?.email || data.email || '',
+        email: data.email || '',
         first_name: data.first_name,
         last_name: data.last_name,
         date_of_birth: data.date_of_birth
@@ -49,7 +42,9 @@ export const useAuth = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .upsert(profileData);
+        .upsert(profileData, {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
     } catch (error: any) {
@@ -60,8 +55,6 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -110,30 +103,9 @@ export const useAuth = () => {
           throw profileError;
         }
 
-        if (data.user.user_metadata) {
-          await updateUserProfile(data.user.id, {
-            first_name: data.user.user_metadata.first_name,
-            last_name: data.user.user_metadata.last_name,
-            date_of_birth: data.user.user_metadata.date_of_birth,
-            email: data.user.email
-          });
-        }
+        handleAuthSuccess(true, toast);
+        navigate('/chatbot');
       }
-      
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth`
-        }
-      });
-      
-      if (otpError) throw otpError;
-      
-      setOtpSent(true);
-      toast({
-        title: "OTP Sent",
-        description: "Please check your email for the verification code",
-      });
     } catch (error: any) {
       handleAuthError(error, toast);
     } finally {
@@ -151,22 +123,6 @@ export const useAuth = () => {
     setIsLoading(true);
 
     try {
-      const { data: existingProfiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', data.email);
-
-      if (profileError) throw profileError;
-
-      if (existingProfiles && existingProfiles.length > 0) {
-        toast({
-          title: "Account exists",
-          description: "An account with this email already exists. Please sign in.",
-          variant: "destructive"
-        });
-        return false;
-      }
-
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -184,18 +140,19 @@ export const useAuth = () => {
       // If sign up is successful and we have a user, update their profile
       if (authData.user) {
         await updateUserProfile(authData.user.id, {
+          email: data.email,
           first_name: data.firstName,
           last_name: data.lastName,
           date_of_birth: data.dob
         });
+
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account",
+        });
+        return true;
       }
-      
-      setOtpSent(true);
-      toast({
-        title: "Verification email sent",
-        description: "Please check your email to verify your account",
-      });
-      return true;
+      return false;
     } catch (error: any) {
       handleAuthError(error, toast);
       return false;
