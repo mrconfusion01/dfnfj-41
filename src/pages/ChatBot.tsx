@@ -1,188 +1,132 @@
 
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { History, MessagesSquare, Settings, User, Send } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarTrigger,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarInset,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+import { Github } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ChatBot() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-
+  const { toast } = useToast();
+  const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("llama-3.1-405b");
+  
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/auth");
+        navigate('/auth');
       }
     };
     checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      const newMessage: Message = {
-        id: Date.now(),
-        text: inputMessage,
-        isUser: true,
-        timestamp: new Date(),
-      };
-      
-      setMessages([...messages, newMessage]);
-      setInputMessage("");
-
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse: Message = {
-          id: Date.now() + 1,
-          text: "Thank you for your message. I am here to help you!",
-          isUser: false,
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) {
+      toast({
+        title: "Empty prompt",
+        description: "Please enter a prompt to continue",
+        variant: "destructive",
+      });
+      return;
     }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
+    // Handle prompt submission here
+    console.log("Submitting prompt:", prompt);
+    console.log("Selected model:", model);
   };
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-background">
-        <Sidebar>
-          <SidebarHeader className="border-b border-border p-4">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">AI Assistant</span>
-                <span className="text-xs text-muted-foreground">Online</span>
-              </div>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Chats</SidebarGroupLabel>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <button className="w-full">
-                      <MessagesSquare className="h-4 w-4" />
-                      <span>New Chat</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <button className="w-full">
-                      <History className="h-4 w-4" />
-                      <span>Chat History</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroup>
-            <SidebarGroup>
-              <SidebarGroupLabel>Settings</SidebarGroupLabel>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <button className="w-full">
-                      <User className="h-4 w-4" />
-                      <span>Profile</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <button className="w-full">
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-
-        <SidebarInset>
-          <div className="flex flex-col h-full">
-            <main className="flex-1 overflow-auto p-6">
-              <div className="max-w-3xl mx-auto space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center py-12">
-                    <h2 className="text-2xl font-bold mb-2">Welcome to AI Assistant</h2>
-                    <p className="text-muted-foreground">Start a conversation by typing a message below.</p>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-lg p-4 ${
-                          message.isUser
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="text-sm">{message.text}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </main>
-
-            <div className="border-t p-4">
-              <div className="max-w-3xl mx-auto flex gap-2">
-                <Textarea
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Type your message here..."
-                  className="min-h-[60px] resize-none"
-                />
-                <Button onClick={handleSendMessage} className="h-[60px]">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#F8F7FF] via-[#F1F0FB] to-[#E5DEFF]">
+      {/* Header */}
+      <header className="w-full px-4 py-3 flex items-center justify-between bg-white/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+            <span className="text-white font-semibold">L</span>
           </div>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+          <span className="font-semibold text-gray-900">LlamaCoder</span>
+        </div>
+        <a 
+          href="https://github.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors"
+        >
+          <Github className="w-4 h-4" />
+          GitHub Repo
+        </a>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-16 max-w-3xl">
+        <div className="text-center space-y-6 mb-12">
+          <h1 className="text-5xl font-bold tracking-tight">
+            Turn your{" "}
+            <span className="text-blue-500">idea</span>
+            <br />
+            into a{" "}
+            <span className="text-blue-500">prompt</span>
+          </h1>
+          <p className="text-gray-500 text-lg">
+            Powered by Llama 3.1 and Together AI
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative">
+            <Input
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Build me a calculator app..."
+              className="w-full h-[120px] p-6 text-lg rounded-2xl bg-white border-gray-200 resize-none"
+              style={{ paddingRight: "3.5rem" }}
+            />
+            <button 
+              type="submit" 
+              className="absolute right-4 bottom-4 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
+            >
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="m22 2-7 20-4-9-9-4Z"/>
+                <path d="M22 2 11 13"/>
+              </svg>
+            </button>
+          </div>
+
+          <Select
+            value={model}
+            onValueChange={setModel}
+          >
+            <SelectTrigger className="w-[200px] mx-auto bg-white">
+              <SelectValue placeholder="Select a model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="llama-3.1-405b">Llama 3.1 405B</SelectItem>
+              <SelectItem value="llama-3.1-70b">Llama 3.1 70B</SelectItem>
+              <SelectItem value="llama-3.1-34b">Llama 3.1 34B</SelectItem>
+            </SelectContent>
+          </Select>
+        </form>
+      </main>
+    </div>
   );
 }
