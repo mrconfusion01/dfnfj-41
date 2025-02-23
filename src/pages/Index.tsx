@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+
 const features = [{
   title: "Mindful Moments",
   description: "Take a breather with short, guided mindfulness exercises to calm your mind and body in just a few minutes.",
@@ -19,9 +21,17 @@ const features = [{
         <span className="text-2xl">🌙</span>
       </div>
 }];
+
 const benefits = ["Affordable Emotional Care", "Instant Emotional Support", "Confidential Conversations", "Boost Your Mental Health", "Effective Stress Relief", "Personalized Guidance", "Empower Your Mind", "24/7 Support Access"];
+
 export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate("/auth");
+  };
+
   return <div className="min-h-screen bg-pattern relative">
       {/* Hero Background */}
       <div className="hero-background" />
@@ -54,9 +64,13 @@ export default function Index() {
             </p>
           </div>
           <div className="overflow-hidden">
-            <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 opacity-0 animate-reveal-button" style={{
-            animationDelay: "0.6s"
-          }}>
+            <button 
+              onClick={handleGetStarted}
+              className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 opacity-0 animate-reveal-button" 
+              style={{
+                animationDelay: "0.6s"
+              }}
+            >
               Get Started
             </button>
           </div>
