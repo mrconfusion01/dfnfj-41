@@ -143,7 +143,7 @@ export default function ChatBot() {
         </div>
       </div>
 
-      <header className="fixed top-4 left-0 right-0 z-40">
+      <header className="fixed top-4 left-0 right-0 z-40 bg-transparent">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mx-4 px-4 py-3 bg-white/30 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -163,8 +163,9 @@ export default function ChatBot() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-20">
-        {!isConversationMode ? <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
+      <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-24">
+        {!isConversationMode ? (
+          <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
             <div className="text-center space-y-6 mb-8">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
                 {welcomeMessage}
@@ -184,33 +185,53 @@ export default function ChatBot() {
                 </button>
               </div>
             </form>
-          </div> : <div className="space-y-6 pb-24">
-            {messages.map(message => <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
-                <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
-                  {message.content}
+          </div>
+        ) : (
+          <div className="relative h-[calc(100vh-8rem)]">
+            <div className="absolute inset-0 overflow-y-auto pb-36 space-y-6">
+              {messages.map(message => (
+                <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
+                  <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
+                    {message.content}
+                  </div>
                 </div>
-              </div>)}
-            {isTyping && <div className="flex justify-start">
-                <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
-                  {currentStreamedText}
-                  <span className="animate-pulse">|</span>
+              ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
+                    {currentStreamedText}
+                    <span className="animate-pulse">|</span>
+                  </div>
                 </div>
-              </div>}
-          </div>}
-
-        {isConversationMode && <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-4">
+              )}
+            </div>
+            
+            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto z-30">
               <div className="relative">
-                <Input value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Share your thoughts..." className="w-full h-15 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <button type="submit" className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m22 2-7 20-4-9-9-4Z" />
-                    <path d="M22 2 11 13" />
-                  </svg>
-                </button>
+                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-white/30 via-white/30 to-transparent backdrop-blur-md" />
+                <form onSubmit={handleSubmit} className="relative z-10">
+                  <div className="relative">
+                    <Input 
+                      value={prompt} 
+                      onChange={e => setPrompt(e.target.value)} 
+                      placeholder="Share your thoughts..." 
+                      className="w-full h-15 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    />
+                    <button 
+                      type="submit" 
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m22 2-7 20-4-9-9-4Z" />
+                        <path d="M22 2 11 13" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>}
+            </div>
+          </div>
+        )}
       </main>
     </div>;
 }
