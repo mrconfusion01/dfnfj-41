@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -68,10 +67,7 @@ export const useAuth = () => {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          },
-          // Enable automatic account linking based on email
-          shouldCreateUser: true,
-          emailLinkEnabled: true
+          }
         }
       });
 
@@ -96,12 +92,7 @@ export const useAuth = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          // Enable automatic account linking
-          shouldCreateUser: true,
-          emailLinkEnabled: true
-        }
+        password
       });
       
       if (error) throw error;
@@ -129,9 +120,7 @@ export const useAuth = () => {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          // Enable automatic account linking
-          shouldCreateUser: true,
-          emailLinkEnabled: true
+          emailRedirectTo: `${window.location.origin}/auth`
         }
       });
       
