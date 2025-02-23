@@ -42,34 +42,41 @@ export const useSignIn = () => {
         return false;
       }
 
-      // First check if the email exists in profiles
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('email', email);
+      // Try to sign in with email and password
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-      if (!count || count === 0) {
-        toast({
-          title: "Email not registered",
-          description: "Please sign up first",
-          variant: "destructive",
-        });
-        navigate('/auth', { state: { isSignIn: false } });
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast({
+            title: "Invalid credentials",
+            description: "Please check your email and password",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
         return false;
       }
 
-      // Proceed with sign in
-      const { error: signInError } = await supabase.auth.signInWithOtp({
-        email,
-      });
-
-      if (signInError) throw signInError;
+      if (!data.user) {
+        toast({
+          title: "Error",
+          description: "No user found with this email",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       toast({
-        title: "Verification email sent",
-        description: "Please check your email for the verification code",
+        title: "Success",
+        description: "Successfully signed in",
       });
 
+      // Navigate to chatbot on successful login
+      navigate('/chatbot');
       return true;
     } catch (error: any) {
       toast({
