@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileData } from "@/types/auth";
+import { pendingProfiles } from "./useSignUp";
 
 export const useProfile = () => {
   const { toast } = useToast();
@@ -18,38 +19,74 @@ export const useProfile = () => {
         throw new Error("Please confirm your email to continue");
       }
 
+      // Check if email is verified
+      if (!session.session.user.email_confirmed_at) {
+        toast({
+          title: "Email not verified",
+          description: "Please verify your email address before updating your profile.",
+          variant: "destructive",
+        });
+        throw new Error("Email not verified");
+      }
+
       // Verify the user is updating their own profile
       if (session.session.user.id !== userId) {
         throw new Error("Unauthorized to update this profile");
       }
 
-      const { data: currentProfile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', userId)
-        .single();
+      // Check if there are pending profile details
+      const pendingDetails = pendingProfiles.get(userId);
+      if (pendingDetails) {
+        // If we have pending details and email is verified, create the profile
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            ...pendingDetails,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'id'
+          });
 
-      if (!currentProfile?.email) {
-        throw new Error("Could not find existing profile");
-      }
+        if (error) throw error;
 
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          email: currentProfile.email,
-          ...data,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'id'
+        // Clear the pending details after successful creation
+        pendingProfiles.delete(userId);
+        
+        toast({
+          title: "Profile created",
+          description: "Your account has been fully activated",
         });
+      } else {
+        // Handle regular profile updates
+        const { data: currentProfile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', userId)
+          .single();
 
-      if (error) throw error;
+        if (!currentProfile?.email) {
+          throw new Error("Could not find existing profile");
+        }
 
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
-      });
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            email: currentProfile.email,
+            ...data,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'id'
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been successfully updated",
+        });
+      }
 
     } catch (error: any) {
       console.error('Error updating profile:', error);

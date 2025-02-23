@@ -7,6 +7,9 @@ import { useProfile } from "./useProfile";
 import { useNavigate } from "react-router-dom";
 import type { SignUpData } from "@/types/auth";
 
+// Create a temporary storage for pending user details
+export const pendingProfiles = new Map<string, Omit<SignUpData, 'password'>>();
+
 export const useSignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -52,19 +55,16 @@ export const useSignUp = () => {
         throw error;
       }
 
-      // If sign up is successful and we have a user, update their profile
+      // If sign up is successful, store the user details temporarily
       if (authData.user) {
-        await updateUserProfile(authData.user.id, {
-          email: data.email,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          date_of_birth: data.dob
-        });
+        // Store user details (excluding password) in temporary storage
+        const { password, ...userDetails } = data;
+        pendingProfiles.set(authData.user.id, userDetails);
 
         toast({
           title: "Account created successfully! 📧",
           description: "We've sent you a confirmation email. Please check your inbox and click the verification link to activate your account.",
-          duration: 6000, // Show for longer duration since it's an important message
+          duration: 6000,
         });
         return true;
       }
