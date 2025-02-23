@@ -65,7 +65,7 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -93,12 +93,22 @@ export default function Index() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-4 overflow-hidden">
-        <div className="max-w-full">
+      <section className="py-20 px-4 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+        <div className="max-w-full space-y-4">
           <div className="flex gap-4 sliding-container">
-            {[...benefits, ...benefits].map((benefit, index) => (
+            {[...benefits.slice(0, 4), ...benefits.slice(0, 4)].map((benefit, index) => (
               <div
-                key={`${benefit}-${index}`}
+                key={`${benefit}-${index}-1`}
+                className="benefit-item"
+              >
+                {benefit}
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-4 sliding-container" style={{ animationDirection: 'reverse' }}>
+            {[...benefits.slice(4), ...benefits.slice(4)].map((benefit, index) => (
+              <div
+                key={`${benefit}-${index}-2`}
                 className="benefit-item"
               >
                 {benefit}
@@ -109,7 +119,7 @@ export default function Index() {
       </section>
 
       {/* Get Started Section */}
-      <section className="py-20 px-4 text-center relative">
+      <section className="py-20 px-4 text-center relative bg-gradient-to-b from-white via-[#E8EFFF] to-transparent backdrop-blur-sm">
         <svg className="decorative-line absolute bottom-0 left-1/2 w-96 h-96 -z-10 transform -translate-x-1/2" viewBox="0 0 200 200">
           <path d="M 0,100 C 50,150 150,50 200,100" />
         </svg>

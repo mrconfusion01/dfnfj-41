@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="w-full bg-white/80 backdrop-blur-sm border-b border-gray-100">
+    <nav className="fixed w-full top-4 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+        <div className="flex justify-between h-16 items-center bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 px-6">
           <div className="flex-shrink-0">
             <Link to="/" className="text-xl font-semibold">
               Soulmate.ai
