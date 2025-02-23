@@ -44,29 +44,28 @@ export const useSignIn = () => {
         return { success: false, requiresOTP: false };
       }
 
-      // First, verify the password without creating a session
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      // Use REST endpoint to verify credentials without creating a session
+      const response = await fetch(`${supabase.supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabase.supabaseKey
+        },
+        body: JSON.stringify({ email, password })
       });
 
-      if (signInError) {
-        if (signInError.message.includes('Invalid login credentials')) {
-          toast({
-            title: "Invalid credentials",
-            description: "Please check your email and password",
-            variant: "destructive",
-          });
-        } else {
-          throw signInError;
-        }
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: "Invalid credentials",
+          description: "Please check your email and password",
+          variant: "destructive",
+        });
         return { success: false, requiresOTP: false };
       }
 
-      // Password is correct, sign out the user before sending OTP
-      await supabase.auth.signOut();
-
-      // Send OTP for second factor authentication
+      // Send OTP for verification
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
