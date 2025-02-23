@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -78,14 +77,14 @@ export default function ChatBot() {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white/80 backdrop-blur-md shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } z-50`}
       >
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat History</h2>
-            <button onClick={toggleSidebar} className="p-2 hover:bg-gray-100 rounded-lg">
+            <button onClick={toggleSidebar} className="p-2 hover:bg-white/10 rounded-lg">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -95,7 +94,7 @@ export default function ChatBot() {
             {chatHistory.map((chat) => (
               <div
                 key={chat.id}
-                className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <MessageSquare className="w-5 h-5 text-blue-500" />
@@ -108,8 +107,8 @@ export default function ChatBot() {
             ))}
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
-          <div className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
+          <div className="flex items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer">
             <User className="w-5 h-5 text-gray-500" />
             <span className="text-sm font-medium">Profile</span>
           </div>
