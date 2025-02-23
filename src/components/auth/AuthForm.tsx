@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +25,11 @@ export const AuthForm = ({
   const [otpSent, setOtpSent] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { toast } = useToast();
+
+  const handleBack = () => {
+    setOtpSent(false);
+    setIsResettingPassword(false);
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,7 +210,11 @@ export const AuthForm = ({
   };
 
   if (otpSent) {
-    return <OTPForm onSubmit={handleOtpVerification} isLoading={isLoading} />;
+    return <OTPForm 
+      onSubmit={handleOtpVerification} 
+      isLoading={isLoading}
+      onBack={handleBack}
+    />;
   }
 
   if (isResettingPassword && !otpSent) {

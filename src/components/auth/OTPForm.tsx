@@ -1,13 +1,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ArrowLeft } from "lucide-react";
 
 interface OTPFormProps {
   onSubmit: (otp: string) => Promise<void>;
   isLoading: boolean;
+  onBack?: () => void;  // Added back button handler
 }
 
-export const OTPForm = ({ onSubmit, isLoading }: OTPFormProps) => {
+export const OTPForm = ({ onSubmit, isLoading, onBack }: OTPFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -17,6 +19,18 @@ export const OTPForm = ({ onSubmit, isLoading }: OTPFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
+      {onBack && (
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onBack}
+          className="mb-4 p-0 hover:bg-transparent"
+        >
+          <ArrowLeft className="h-5 w-5 mr-1" />
+          Back
+        </Button>
+      )}
+
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-900">
           Enter verification code
