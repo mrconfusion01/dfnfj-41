@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -33,13 +34,14 @@ export const useAuth = () => {
         .from('profiles')
         .select('email')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) throw fetchError;
 
+      // If no profile exists yet, we'll use the data provided
       const profileData: ProfileData = {
         id: userId,
-        email: existingProfile.email,
+        email: existingProfile?.email || data.email || '',
         first_name: data.first_name,
         last_name: data.last_name,
         date_of_birth: data.date_of_birth
@@ -102,9 +104,9 @@ export const useAuth = () => {
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError) {
           throw profileError;
         }
 
@@ -113,6 +115,7 @@ export const useAuth = () => {
             first_name: data.user.user_metadata.first_name,
             last_name: data.user.user_metadata.last_name,
             date_of_birth: data.user.user_metadata.date_of_birth,
+            email: data.user.email
           });
         }
       }
