@@ -188,50 +188,62 @@ export default function ChatBot() {
           </div>
         ) : (
           <div className="relative h-[calc(100vh-8rem)]">
-            <div className="absolute inset-0 overflow-y-auto space-y-6 pb-24">
-              {messages.map(message => (
-                <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
-                    {message.content}
+            <div className="absolute inset-0 overflow-y-auto space-y-6 pb-24 pr-1">
+              <div className="space-y-6 mr-2">
+                {messages.map(message => (
+                  <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
+                      {message.content}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
-                    {currentStreamedText}
-                    <span className="animate-pulse">|</span>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
+                      {currentStreamedText}
+                      <span className="animate-pulse">|</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             
-            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
-              <div className="relative">
-                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-white/30 via-white/30 to-transparent backdrop-blur-md" />
-                <form onSubmit={handleSubmit} className="relative z-10">
-                  <div className="relative">
-                    <Input 
-                      value={prompt} 
-                      onChange={e => setPrompt(e.target.value)} 
-                      placeholder="Share your thoughts..." 
-                      className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                    />
-                    <button 
-                      type="submit" 
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m22 2-7 20-4-9-9-4Z" />
-                        <path d="M22 2 11 13" />
-                      </svg>
-                    </button>
-                  </div>
-                </form>
-              </div>
+            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto bg-white/80">
+              <form onSubmit={handleSubmit} className="relative">
+                <div className="relative">
+                  <Input 
+                    value={prompt} 
+                    onChange={e => setPrompt(e.target.value)} 
+                    placeholder="Share your thoughts..." 
+                    className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
+                  <button 
+                    type="submit" 
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m22 2-7 20-4-9-9-4Z" />
+                      <path d="M22 2 11 13" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
       </main>
+
+      <style jsx>{`
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 4px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 2px;
+        }
+      `}</style>
     </div>;
 }
