@@ -10,17 +10,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
+
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
+
 interface Message {
   id: number;
   content: string;
   isAi: boolean;
 }
+
 interface ChatSession {
   id: number;
   title: string;
   date: string;
 }
+
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("llama-3.1-405b");
@@ -57,6 +61,7 @@ export default function ChatBot() {
     toast
   } = useToast();
   const navigate = useNavigate();
+
   useEffect(() => {
     const loadUserProfile = async () => {
       const {
@@ -71,10 +76,12 @@ export default function ChatBot() {
     };
     loadUserProfile();
   }, [fetchProfile]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/auth');
   };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -88,6 +95,7 @@ export default function ChatBot() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isSidebarOpen]);
+
   useEffect(() => {
     const checkScroll = () => {
       const container = chatContainerRef.current;
@@ -111,6 +119,7 @@ export default function ChatBot() {
       }
     };
   }, [messages]);
+
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
@@ -118,6 +127,7 @@ export default function ChatBot() {
       });
     }
   };
+
   const simulateStreamingResponse = async (response: string) => {
     try {
       setIsTyping(true);
@@ -142,6 +152,7 @@ export default function ChatBot() {
       setCurrentStreamedText("");
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isTyping) return;
@@ -157,20 +168,25 @@ export default function ChatBot() {
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
   };
+
   const stopResponse = () => {
     setIsTyping(false);
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   const handleNewChat = () => {
     setIsConversationMode(false);
     setMessages([]);
     setIsSidebarOpen(false);
   };
+
   const handleDeleteSession = (session: ChatSession) => {
     setSessionToDelete(session);
   };
+
   const confirmDelete = () => {
     if (sessionToDelete) {
       setChatHistory(prev => prev.filter(chat => chat.id !== sessionToDelete.id));
@@ -181,6 +197,7 @@ export default function ChatBot() {
       setSessionToDelete(null);
     }
   };
+
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
@@ -280,10 +297,10 @@ export default function ChatBot() {
       <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-24">
         {!isConversationMode ? <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
             <div className="text-center space-y-6 mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800 animate-[fade-in_0.5s_ease-out,scale-in_0.3s_ease-out] opacity-0 [animation-fill-mode:forwards] [animation-delay:0.2s]">
                 {welcomeMessage}
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-lg animate-[fade-in_0.5s_ease-out] opacity-0 [animation-fill-mode:forwards] [animation-delay:0.4s]">
                 Your Mental Therapist
               </p>
             </div>
