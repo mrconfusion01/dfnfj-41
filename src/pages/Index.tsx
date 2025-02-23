@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
+
 const features = [{
   title: "Mindful Moments",
   description: "Take a breather with short, guided mindfulness exercises to calm your mind and body in just a few minutes.",
@@ -19,10 +20,15 @@ const features = [{
         <span className="text-2xl">🌙</span>
       </div>
 }];
+
 const benefits = ["Affordable Emotional Care", "Instant Emotional Support", "Confidential Conversations", "Boost Your Mental Health", "Effective Stress Relief", "Personalized Guidance", "Empower Your Mind", "24/7 Support Access"];
+
 export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
-  return <div className="min-h-screen bg-pattern">
+  return <div className="min-h-screen bg-pattern relative">
+      {/* Hero Background */}
+      <div className="hero-background" />
+
       {/* Decorative Elements */}
       <svg className="decorative-line absolute top-20 left-0 w-64 h-64 -z-10" viewBox="0 0 200 200">
         <path d="M 0,100 C 20,80 50,20 100,100 S 180,120 200,100" />
@@ -34,24 +40,24 @@ export default function Index() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-64 px-4">
+      <section className="pt-32 pb-64 px-4 relative">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h1 className="text-5xl md:text-6xl font-bold gradient-text animate-fade-up tracking-tight">
             Mental Health Therapist.
           </h1>
           <p className="text-xl text-gray-600 animate-fade-up leading-relaxed" style={{
-          animationDelay: "0.2s"
-        }}>
+            animationDelay: "0.2s"
+          }}>
             Your AI Companion for Mental Wellness
           </p>
           <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 animate-fade-up" style={{
-          animationDelay: "0.4s"
-        }}>
+            animationDelay: "0.4s"
+          }}>
             Get Started
           </button>
           <p className="text-sm text-gray-500 animate-fade-up" style={{
-          animationDelay: "0.6s"
-        }}>
+            animationDelay: "0.6s"
+          }}>
             Powered by AI, designed with care, and here to elevate your emotional well-being to new heights.
           </p>
         </div>
