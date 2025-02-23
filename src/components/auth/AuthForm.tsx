@@ -4,7 +4,7 @@ import { SignInForm } from "./SignInForm";
 import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -49,9 +49,14 @@ export const AuthForm = ({
     await updatePassword(password);
   };
 
-  const handlePasswordReset = async (email: string) => {
-    setTempEmail(email);
-    await resetPassword(email);
+  const handlePasswordReset = async (e: MouseEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLFormElement;
+    const email = target.email?.value;
+    if (email) {
+      setTempEmail(email);
+      await resetPassword(email);
+    }
   };
 
   if (otpSent) {
@@ -87,3 +92,4 @@ export const AuthForm = ({
     />
   );
 };
+
