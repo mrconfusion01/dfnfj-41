@@ -19,6 +19,7 @@ export const AuthForm = ({
   onToggleMode
 }: AuthFormProps) => {
   const [tempEmail, setTempEmail] = useState<string>("");
+  const [tempOtp, setTempOtp] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const {
     isLoading,
@@ -66,21 +67,32 @@ export const AuthForm = ({
     await verifyOtp(tempEmail, otp);
   };
 
-  // Wrapper for updatePassword to convert boolean return to void
-  const handleUpdatePassword = async (password: string) => {
-    await updatePassword(password);
-  };
-
-  // Wrapper for resetPassword to handle MouseEvent
+  // Handler for password reset flow
   const handlePasswordReset = async (e: MouseEvent) => {
     e.preventDefault();
     const form = (e.target as HTMLElement).closest('form');
     if (form) {
       const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
       if (emailInput) {
+        setTempEmail(emailInput.value); // Store email for later use
         await resetPassword(emailInput.value);
       }
     }
+  };
+
+  // Handler for updating password with OTP
+  const handleUpdatePassword = async (password: string) => {
+    if (!tempEmail) {
+      console.error("Email is missing");
+      return;
+    }
+    await updatePassword(tempEmail, tempOtp, password);
+  };
+
+  // Handler for OTP verification during password reset
+  const handlePasswordResetOtp = async (otp: string) => {
+    setTempOtp(otp); // Store OTP for password update
+    setIsResettingPassword(true);
   };
 
   if (showConfirmation) {
@@ -125,7 +137,7 @@ export const AuthForm = ({
   if (otpSent) {
     return (
       <OTPForm 
-        onSubmit={handleVerifyOtp}
+        onSubmit={isResettingPassword ? handlePasswordResetOtp : handleVerifyOtp}
         isLoading={isLoading}
         onBack={handleBack}
       />
