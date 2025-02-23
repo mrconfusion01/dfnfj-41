@@ -15,12 +15,37 @@ export const useSignUp = () => {
     setIsLoading(true);
 
     try {
+      // First check if user already exists
+      const { data: existingUser } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (existingUser?.user) {
+        toast({
+          title: "Account already exists",
+          description: "Please sign in instead",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
       });
       
-      if (error) throw error;
+      if (error) {
+        // Special handling for "User already registered" error
+        if (error.message.includes("already registered")) {
+          toast({
+            title: "Account already exists",
+            description: "Please sign in instead",
+          });
+          return false;
+        }
+        throw error;
+      }
 
       // If sign up is successful and we have a user, update their profile
       if (authData.user) {
