@@ -48,9 +48,10 @@ export const useSignUp = () => {
           data: {
             first_name: data.firstName,
             last_name: data.lastName,
-            date_of_birth: data.dob,
+            date_of_birth: data.dob
           },
-        },
+          emailRedirectTo: `${window.location.origin}/auth`
+        }
       });
 
       if (error) throw error;

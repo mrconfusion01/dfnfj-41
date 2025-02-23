@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "../ui/button";
+import type { MouseEvent } from "react";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -70,9 +71,16 @@ export const AuthForm = ({
     await updatePassword(password);
   };
 
-  // Wrapper for resetPassword to handle event and extract email
-  const handlePasswordReset = async (email: string) => {
-    await resetPassword(email);
+  // Wrapper for resetPassword to handle MouseEvent
+  const handlePasswordReset = async (e: MouseEvent) => {
+    e.preventDefault();
+    const form = (e.target as HTMLElement).closest('form');
+    if (form) {
+      const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
+      if (emailInput) {
+        await resetPassword(emailInput.value);
+      }
+    }
   };
 
   if (showConfirmation) {
