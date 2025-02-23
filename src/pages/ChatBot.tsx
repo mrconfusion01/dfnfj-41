@@ -2,17 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -20,21 +10,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
-
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
-
 interface Message {
   id: number;
   content: string;
   isAi: boolean;
 }
-
 interface ChatSession {
   id: number;
   title: string;
   date: string;
 }
-
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("llama-3.1-405b");
@@ -60,18 +46,24 @@ export default function ChatBot() {
     date: "2 days ago"
   }]);
   const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
-  
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { fetchProfile } = useProfile();
-  const { toast } = useToast();
+  const {
+    fetchProfile
+  } = useProfile();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     const loadUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (user) {
         const profile = await fetchProfile(user.id);
         setUserProfile(profile);
@@ -79,12 +71,10 @@ export default function ChatBot() {
     };
     loadUserProfile();
   }, [fetchProfile]);
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/auth');
   };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -98,7 +88,6 @@ export default function ChatBot() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isSidebarOpen]);
-
   useEffect(() => {
     const checkScroll = () => {
       const container = chatContainerRef.current;
@@ -122,7 +111,6 @@ export default function ChatBot() {
       }
     };
   }, [messages]);
-
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
@@ -130,7 +118,6 @@ export default function ChatBot() {
       });
     }
   };
-
   const simulateStreamingResponse = async (response: string) => {
     try {
       setIsTyping(true);
@@ -155,7 +142,6 @@ export default function ChatBot() {
       setCurrentStreamedText("");
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isTyping) return;
@@ -171,36 +157,30 @@ export default function ChatBot() {
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
   };
-
   const stopResponse = () => {
     setIsTyping(false);
   };
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
   const handleNewChat = () => {
     setIsConversationMode(false);
     setMessages([]);
     setIsSidebarOpen(false);
   };
-
   const handleDeleteSession = (session: ChatSession) => {
     setSessionToDelete(session);
   };
-
   const confirmDelete = () => {
     if (sessionToDelete) {
       setChatHistory(prev => prev.filter(chat => chat.id !== sessionToDelete.id));
       toast({
         title: "Chat session deleted",
-        description: "The chat session has been permanently deleted.",
+        description: "The chat session has been permanently deleted."
       });
       setSessionToDelete(null);
     }
   };
-
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
@@ -226,8 +206,7 @@ export default function ChatBot() {
             <span>New Chat</span>
           </button>
           <div className="space-y-4">
-            {chatHistory.map(chat => (
-              <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
+            {chatHistory.map(chat => <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <MessageSquare className="w-5 h-5 text-blue-500" />
@@ -238,17 +217,14 @@ export default function ChatBot() {
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSession(chat);
-                        }}
-                        className="p-2 hover:bg-white/20 rounded-full"
-                      >
+                      <button onClick={e => {
+                    e.stopPropagation();
+                    handleDeleteSession(chat);
+                  }} className="p-2 hover:bg-white/20 rounded-full">
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="bg-gray-50 rounded-3xl">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete chat session</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -262,8 +238,7 @@ export default function ChatBot() {
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
@@ -275,10 +250,7 @@ export default function ChatBot() {
               <p className="font-medium text-sm">{userProfile?.first_name || 'User'}</p>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors"
-          >
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors">
             <LogOut className="w-5 h-5" />
             <span className="text-sm font-medium">Logout</span>
           </button>
