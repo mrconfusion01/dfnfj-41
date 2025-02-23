@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Github, MessageSquare, User, Menu, X, Heart, Plus } from "lucide-react";
+import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
@@ -21,8 +21,11 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentStreamedText, setCurrentStreamedText] = useState("");
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatHistory] = useState([{
     id: 1,
     title: "Previous Session",
@@ -53,25 +56,46 @@ export default function ChatBot() {
     };
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 100;
+      setShowScrollButton(!isAtBottom);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const simulateStreamingResponse = async (response: string) => {
     setIsTyping(true);
     setCurrentStreamedText("");
     for (let i = 0; i < response.length; i++) {
+      if (!isTyping) break;
       await new Promise(resolve => setTimeout(resolve, 30));
       setCurrentStreamedText(prev => prev + response[i]);
     }
+    if (isTyping) {
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        content: response,
+        isAi: true
+      }]);
+    }
     setIsTyping(false);
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      content: response,
-      isAi: true
-    }]);
     setCurrentStreamedText("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || isTyping) return;
     setIsConversationMode(true);
     setMessages(prev => [...prev, {
       id: Date.now(),
@@ -81,6 +105,10 @@ export default function ChatBot() {
     setPrompt("");
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
+  };
+
+  const stopResponse = () => {
+    setIsTyping(false);
   };
 
   const toggleSidebar = () => {
@@ -188,7 +216,7 @@ export default function ChatBot() {
           </div>
         ) : (
           <div className="relative h-[calc(100vh-8rem)]">
-            <div className="absolute inset-0 overflow-y-auto space-y-6 pb-24 pr-1">
+            <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-6 pb-24 pr-1">
               <div className="space-y-6 mr-2">
                 {messages.map(message => (
                   <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
@@ -205,6 +233,7 @@ export default function ChatBot() {
                     </div>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
             </div>
             
@@ -214,21 +243,42 @@ export default function ChatBot() {
                   <Input 
                     value={prompt} 
                     onChange={e => setPrompt(e.target.value)} 
-                    placeholder="Share your thoughts..." 
-                    className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    placeholder={isTyping ? "Wait for AI to finish responding..." : "Share your thoughts..."} 
+                    disabled={isTyping}
+                    className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50" 
                   />
-                  <button 
-                    type="submit" 
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m22 2-7 20-4-9-9-4Z" />
-                      <path d="M22 2 11 13" />
-                    </svg>
-                  </button>
+                  {isTyping ? (
+                    <button 
+                      type="button"
+                      onClick={stopResponse}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <Square className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button 
+                      type="submit" 
+                      disabled={isTyping}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m22 2-7 20-4-9-9-4Z" />
+                        <path d="M22 2 11 13" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
+
+            {showScrollButton && (
+              <button
+                onClick={scrollToBottom}
+                className="fixed bottom-24 right-8 p-2 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 transition-colors"
+              >
+                <ArrowDown className="w-5 h-5" />
+              </button>
+            )}
           </div>
         )}
       </main>
