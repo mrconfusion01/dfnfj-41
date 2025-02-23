@@ -2,14 +2,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { validateEmail, validatePassword, handleAuthError, handleAuthSuccess } from "@/utils/auth-utils";
-import { useNavigate } from "react-router-dom";
 import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { SignUpForm } from "./SignUpForm";
-import { Database } from "@/integrations/supabase/types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -20,13 +16,20 @@ export const AuthForm = ({
   isSignIn,
   onToggleMode
 }: AuthFormProps) => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const { toast } = useToast();
+  const {
+    isLoading,
+    otpSent,
+    isResettingPassword,
+    signIn,
+    signUp,
+    verifyOtp,
+    resetPassword,
+    updatePassword,
+    setOtpSent,
+    setIsResettingPassword
+  } = useAuth();
 
   const handleBack = () => {
     setOtpSent(false);
@@ -35,43 +38,7 @@ export const AuthForm = ({
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateEmail(email)) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) throw error;
-      
-      // Send OTP for verification
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email
-      });
-      
-      if (otpError) throw otpError;
-      
-      setOtpSent(true);
-      toast({
-        title: "OTP Sent",
-        description: "Please check your email for the verification code",
-      });
-    } catch (error: any) {
-      handleAuthError(error, toast);
-    } finally {
-      setIsLoading(false);
-    }
+    await signIn(email, password);
   };
 
   const handleSignUp = async (data: {
@@ -81,146 +48,45 @@ export const AuthForm = ({
     lastName: string;
     dob: string;
   }) => {
-    setIsLoading(true);
-
-    try {
-      // Check if user already exists in profiles
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', data.email) as { data: Array<{ email: string }> | null };
-
-      if (profiles && profiles.length > 0) {
-        toast({
-          title: "Account exists",
-          description: "An account with this email already exists. Please sign in.",
-          variant: "destructive"
-        });
-        onToggleMode();
-        return;
-      }
-
-      const { error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            date_of_birth: data.dob
-          }
-        }
-      });
-      
-      if (error) throw error;
-      
-      setOtpSent(true);
-      toast({
-        title: "Verification email sent",
-        description: "Please check your email to verify your account",
-      });
-    } catch (error: any) {
-      handleAuthError(error, toast);
-    } finally {
-      setIsLoading(false);
+    const success = await signUp(data);
+    if (!success) {
+      onToggleMode();
     }
   };
 
   const handleOtpVerification = async (otp: string) => {
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: isResettingPassword ? 'recovery' : 'signup'
-      });
-
-      if (error) throw error;
-
-      if (isResettingPassword) {
-        setIsResettingPassword(true);
-        setOtpSent(false);
-        toast({
-          title: "OTP Verified",
-          description: "Please enter your new password",
-        });
-      } else {
-        handleAuthSuccess(isSignIn, toast);
-        navigate('/chatbot');
-      }
-    } catch (error: any) {
-      handleAuthError(error, toast);
-    } finally {
-      setIsLoading(false);
-    }
+    await verifyOtp(email, otp);
   };
 
   const handlePasswordReset = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!email) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address to reset your password",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
-      });
-      
-      if (error) throw error;
-      
-      setIsResettingPassword(true);
-      setOtpSent(true);
-      toast({
-        title: "Reset email sent",
-        description: "Please check your email for the password reset code",
-      });
-    } catch (error: any) {
-      handleAuthError(error, toast);
-    } finally {
-      setIsLoading(false);
-    }
+    await resetPassword(email);
   };
 
   const handleNewPassword = async (newPassword: string) => {
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Password updated",
-        description: "Your password has been successfully reset. Please sign in.",
-      });
-      setIsResettingPassword(false);
+    const success = await updatePassword(newPassword);
+    if (success) {
       onToggleMode();
-    } catch (error: any) {
-      handleAuthError(error, toast);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   if (otpSent) {
-    return <OTPForm 
-      onSubmit={handleOtpVerification} 
-      isLoading={isLoading}
-      onBack={handleBack}
-    />;
+    return (
+      <OTPForm 
+        onSubmit={handleOtpVerification} 
+        isLoading={isLoading}
+        onBack={handleBack}
+      />
+    );
   }
 
   if (isResettingPassword && !otpSent) {
-    return <PasswordResetForm onSubmit={handleNewPassword} isLoading={isLoading} />;
+    return (
+      <PasswordResetForm 
+        onSubmit={handleNewPassword} 
+        isLoading={isLoading} 
+      />
+    );
   }
 
   if (!isSignIn) {
