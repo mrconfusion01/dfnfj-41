@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,8 +7,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
+import type { ProfileData } from "@/types/auth";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
+
 interface Message {
   id: number;
   content: string;
@@ -24,10 +28,12 @@ export default function ChatBot() {
   const [isTyping, setIsTyping] = useState(false);
   const [currentStreamedText, setCurrentStreamedText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const { fetchProfile } = useProfile();
   const [chatHistory] = useState([{
     id: 1,
     title: "Previous Session",
@@ -42,6 +48,17 @@ export default function ChatBot() {
     date: "2 days ago"
   }]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const profile = await fetchProfile(user.id);
+        setUserProfile(profile);
+      }
+    };
+    loadUserProfile();
+  }, [fetchProfile]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -186,6 +203,14 @@ export default function ChatBot() {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
+          <div className="mb-4 p-3 flex items-center gap-3 border-b border-white/20 pb-4">
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">{userProfile?.firstName || 'User'}</p>
+            </div>
+          </div>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors"
