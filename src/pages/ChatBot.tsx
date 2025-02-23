@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Github, MessageSquare, User, Menu, X } from "lucide-react";
+import { Github, MessageSquare, User, Menu, X, Heart } from "lucide-react";
+
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 interface Message {
   id: number;
   content: string;
   isAi: boolean;
 }
+
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("llama-3.1-405b");
@@ -30,6 +32,7 @@ export default function ChatBot() {
     title: "Weekly Check-in",
     date: "2 days ago"
   }]);
+
   const simulateStreamingResponse = async (response: string) => {
     setIsTyping(true);
     setCurrentStreamedText("");
@@ -45,6 +48,7 @@ export default function ChatBot() {
     }]);
     setCurrentStreamedText("");
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -56,22 +60,21 @@ export default function ChatBot() {
     }]);
     setPrompt("");
 
-    // Simulate AI response
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   return <div className="min-h-screen bg-gradient-to-br from-rose-400/20 via-purple-400/20 to-cyan-400/20 relative">
-      {/* Background Design */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl" />
         <div className="absolute top-40 right-40 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl" />
       </div>
 
-      {/* Sidebar */}
       <div className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}>
         <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
@@ -102,16 +105,15 @@ export default function ChatBot() {
         </div>
       </div>
 
-      {/* Floating Header */}
       <header className="fixed top-4 left-4 right-4 px-4 py-3 flex items-center justify-between bg-white/30 backdrop-blur-md rounded-2xl border border-white/30 shadow-sm z-40">
         <div className="flex items-center gap-2">
           <button onClick={toggleSidebar} className="p-2 hover:bg-white/20 rounded-lg mr-2 lg:hidden">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
-            <span className="text-white font-semibold">S</span>
+          <div className="flex items-center gap-2">
+            <Heart className="w-6 h-6 text-purple-500" />
+            <span className="font-semibold text-gray-900">soulmate.ai</span>
           </div>
-          <span className="font-semibold text-gray-900">soulmate.ai</span>
         </div>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 text-white text-sm hover:bg-black/70 transition-colors">
           <Github className="w-4 h-4" />
