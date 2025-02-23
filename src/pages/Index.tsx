@@ -35,29 +35,30 @@ export default function Index() {
 
   return <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        {/* Updated Base Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#accbee] via-[#e7f0fd] to-[#d299c2]" />
+        {/* Base Gradient - Mix of blue, pink, purple */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#9b87f5] via-[#D946EF] to-[#0EA5E9]" />
         
-        {/* Topographic Patterns */}
+        {/* Curved Topographic Patterns */}
         <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]" style={{
-          backgroundSize: '20px 20px'
+          backgroundSize: '20px 20px',
+          maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
         }} />
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M0 40c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.03)'/%3E%3Cpath d='M0 80c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50C20 50 20 30 40 30C60 30 60 50 80 50C100 50 100 30 120 30' stroke='rgba(255,255,255,0.05)' fill='none' stroke-width='2'/%3E%3Cpath d='M0 60C20 60 20 40 40 40C60 40 60 60 80 60C100 60 100 40 120 40' stroke='rgba(255,255,255,0.03)' fill='none' stroke-width='2'/%3E%3Cpath d='M0 70C20 70 20 50 40 50C60 50 60 70 80 70C100 70 100 50 120 50' stroke='rgba(255,255,255,0.02)' fill='none' stroke-width='2'/%3E%3C/svg%3E")`,
           backgroundSize: '100px 100px'
         }} />
         
         {/* Updated Gradient Blobs */}
         <div className="absolute top-0 left-0 w-[600px] h-[600px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#e6b980] to-[#eacda3] rounded-full blur-3xl opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6] to-[#E5DEFF] rounded-full blur-3xl opacity-60" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute bottom-0 right-0 w-[700px] h-[700px]">
-          <div className="absolute inset-0 bg-gradient-to-bl from-[#ee9ca7] to-[#ffdde1] rounded-full blur-3xl opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#D3E4FD] to-[#33C3F0] rounded-full blur-3xl opacity-50" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px]">
-          <div className="absolute inset-0 bg-gradient-to-tl from-[#c1c161] to-[#d4d4b1] rounded-full blur-3xl opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-tl from-[#FFDEE2] to-[#7E69AB] rounded-full blur-3xl opacity-50" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
       </div>
