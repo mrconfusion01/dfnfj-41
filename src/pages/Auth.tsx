@@ -19,18 +19,45 @@ export default function Auth() {
   ];
   
   const [currentPhrase, setCurrentPhrase] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(150);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    let timer: number;
+    const currentText = phrases[currentPhrase];
+    
+    if (isDeleting) {
+      timer = window.setTimeout(() => {
+        setDisplayText(currentText.substring(0, displayText.length - 1));
+      }, typingSpeed / 2);
+    } else {
+      timer = window.setTimeout(() => {
+        setDisplayText(currentText.substring(0, displayText.length + 1));
+      }, typingSpeed);
+    }
+
+    // Handling the complete cycle of typing and deleting
+    if (!isDeleting && displayText === currentText) {
+      timer = window.setTimeout(() => {
+        setIsDeleting(true);
+        setTypingSpeed(100);
+      }, 2000);
+    } else if (isDeleting && displayText === "") {
+      setIsDeleting(false);
       setCurrentPhrase((prev) => (prev + 1) % phrases.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+      setLoopNum(loopNum + 1);
+      setTypingSpeed(150);
+    }
+
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, currentPhrase, loopNum, phrases]);
   
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row">
       {/* Left Side - Auth Form */}
-      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:p-12 flex items-center justify-center">
+      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:p-12 flex items-center justify-center bg-white">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-6">
           <div className="flex items-center gap-2">
             <svg width="28" height="28" viewBox="0 0 32 32">
@@ -127,8 +154,8 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Right Side - Gradient Background and Content */}
-      <div className="w-full lg:w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex flex-col justify-center items-center p-8 lg:p-12 text-white min-h-[300px] lg:min-h-screen">
+      {/* Right Side - Gradient Background and Content - Only visible on larger screens */}
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex-col justify-center items-center p-8 lg:p-12 text-white">
         <div className="max-w-lg text-center space-y-6">
           <div className="flex items-center justify-center gap-3 mb-8">
             <svg width="40" height="40" viewBox="0 0 32 32">
@@ -143,8 +170,9 @@ export default function Auth() {
             <h1 className="text-3xl lg:text-4xl font-bold">soulmate.ai</h1>
           </div>
           <div className="h-16">
-            <p className="text-xl lg:text-2xl font-light transition-all duration-500 animate-fade-up">
-              {phrases[currentPhrase]}
+            <p className="text-xl lg:text-2xl font-light">
+              <span className="inline-block min-h-[2em]">{displayText}</span>
+              <span className="animate-pulse">|</span>
             </p>
           </div>
           <p className="text-base lg:text-lg opacity-90">
