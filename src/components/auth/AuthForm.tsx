@@ -1,3 +1,4 @@
+
 import { SignUpForm } from "./SignUpForm";
 import { SignInForm } from "./SignInForm";
 import { OTPForm } from "./OTPForm";
@@ -20,11 +21,11 @@ export const AuthForm = ({
   const [tempEmail, setTempEmail] = useState<string>("");
   const [tempOtp, setTempOtp] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [requiresOTP, setRequiresOTP] = useState(false);
   const {
     isLoading,
     otpSent,
     isResettingPassword,
+    requiresOTP,
     signIn,
     signUp,
     verifyOtp,
@@ -33,6 +34,7 @@ export const AuthForm = ({
     updatePassword,
     setOtpSent,
     setIsResettingPassword,
+    setRequiresOTP,
     signInWithGoogle
   } = useAuth();
 
@@ -59,7 +61,7 @@ export const AuthForm = ({
 
   const handleSignIn = async (email: string, password: string) => {
     const result = await signIn(email, password);
-    if (result.success) {
+    if (result.success && result.requiresOTP) {
       setTempEmail(email);
     }
   };
@@ -181,3 +183,4 @@ export const AuthForm = ({
     />
   );
 };
+
