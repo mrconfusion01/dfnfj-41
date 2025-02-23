@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -208,7 +207,7 @@ export default function ChatBot() {
               <User className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-medium text-sm">{userProfile?.firstName || 'User'}</p>
+              <p className="font-medium text-sm">{userProfile?.first_name || 'User'}</p>
             </div>
           </div>
           <button
