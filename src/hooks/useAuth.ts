@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,21 @@ export const useAuth = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { toast } = useToast();
+
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/chatbot`
+        }
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      handleAuthError(error, toast);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     if (!validateEmail(email)) {
@@ -199,6 +213,7 @@ export const useAuth = () => {
     resetPassword,
     updatePassword,
     setOtpSent,
-    setIsResettingPassword
+    setIsResettingPassword,
+    signInWithGoogle
   };
 };
