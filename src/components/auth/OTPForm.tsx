@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Timer } from "lucide-react";
 
 interface OTPFormProps {
   onSubmit: (otp: string) => Promise<void>;
@@ -41,11 +41,16 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
         <p className="text-sm text-gray-600">
           Please enter the verification code sent to your email
         </p>
-        {timeRemaining > 0 && (
-          <p className="text-sm text-blue-600">
-            Code expires in: {formatTimeRemaining(timeRemaining)}
-          </p>
-        )}
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Timer className="h-4 w-4 text-blue-500" />
+          {timeRemaining > 0 ? (
+            <span className="text-blue-600">
+              Code expires in: {formatTimeRemaining(timeRemaining)}
+            </span>
+          ) : (
+            <span className="text-red-500">Code has expired</span>
+          )}
+        </div>
       </div>
 
       <Input
@@ -61,7 +66,7 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
         <Button
           type="submit"
           className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
-          disabled={isLoading}
+          disabled={isLoading || timeRemaining === 0}
         >
           {isLoading ? "Verifying..." : "Verify"}
         </Button>
@@ -73,8 +78,16 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
           disabled={timeRemaining > 0 || isLoading}
           className="w-full h-9 rounded-full text-sm"
         >
-          {timeRemaining > 0 ? `Resend code in ${formatTimeRemaining(timeRemaining)}` : "Resend code"}
+          {timeRemaining > 0 
+            ? `Resend code in ${formatTimeRemaining(timeRemaining)}` 
+            : "Resend code"}
         </Button>
+
+        {timeRemaining === 0 && (
+          <p className="text-center text-sm text-red-500">
+            This code has expired. Please request a new one using the Resend button.
+          </p>
+        )}
       </div>
     </form>
   );
