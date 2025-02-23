@@ -29,3 +29,29 @@ export const handleAuthSuccess = (
     description: isSignIn ? "Successfully signed in" : "Account created successfully",
   });
 };
+
+export const handlePasswordReset = async (email: string, toast: ReturnType<typeof useToast>["toast"]) => {
+  if (!validateEmail(email)) {
+    toast({
+      title: "Invalid email",
+      description: "Please enter a valid email address",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth?reset=true`,
+    });
+    if (error) throw error;
+    
+    toast({
+      title: "Check your email",
+      description: "We've sent you a password reset link",
+    });
+  } catch (error: any) {
+    handleAuthError(error, toast);
+  }
+};
+

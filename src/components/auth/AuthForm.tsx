@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { validateEmail, validatePassword, handleAuthError, handleAuthSuccess } from "@/utils/auth-utils";
+import { validateEmail, validatePassword, handleAuthError, handleAuthSuccess, handlePasswordReset } from "@/utils/auth-utils";
 import { Link } from "react-router-dom";
 
 interface AuthFormProps {
@@ -73,6 +73,19 @@ export const AuthForm = ({ isSignIn, onToggleMode }: AuthFormProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address to reset your password",
+        variant: "destructive",
+      });
+      return;
+    }
+    await handlePasswordReset(email, toast);
   };
 
   return (
@@ -143,6 +156,16 @@ export const AuthForm = ({ isSignIn, onToggleMode }: AuthFormProps) => {
           required
         />
         
+        {isSignIn && (
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className="text-sm text-primary hover:underline font-medium block w-full text-right"
+          >
+            Forgot password?
+          </button>
+        )}
+        
         {!isSignIn && (
           <div className="flex items-start gap-2">
             <Checkbox 
@@ -181,3 +204,4 @@ export const AuthForm = ({ isSignIn, onToggleMode }: AuthFormProps) => {
     </form>
   );
 };
+
