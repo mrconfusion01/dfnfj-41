@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { handleAuthError } from "@/utils/auth-utils";
 import { useProfile } from "./useProfile";
+import { useNavigate } from "react-router-dom";
 import type { SignUpData } from "@/types/auth";
 
 export const useSignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { updateUserProfile } = useProfile();
+  const navigate = useNavigate();
 
   const signUp = async (data: SignUpData) => {
     setIsLoading(true);
@@ -27,6 +29,7 @@ export const useSignUp = () => {
           description: "Please sign in instead",
           variant: "destructive",
         });
+        navigate('/auth', { state: { isSignIn: true } });
         return false;
       }
 
@@ -42,6 +45,7 @@ export const useSignUp = () => {
             title: "Account already exists",
             description: "Please sign in instead",
           });
+          navigate('/auth', { state: { isSignIn: true } });
           return false;
         }
         throw error;
