@@ -42,26 +42,25 @@ export const useSignIn = () => {
         return false;
       }
 
-      // First verify password without actually logging in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      // First verify if the user exists
+      const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: email
+        }
       });
 
-      if (signInError) {
-        if (signInError.message.includes('Invalid login credentials')) {
-          toast({
-            title: "Invalid credentials",
-            description: "Please check your email and password",
-            variant: "destructive",
-          });
-        } else {
-          throw signInError;
-        }
+      if (userError) throw userError;
+
+      if (!users || users.length === 0) {
+        toast({
+          title: "Invalid credentials",
+          description: "Please check your email and password",
+          variant: "destructive",
+        });
         return false;
       }
 
-      // If credentials are correct, send reauthentication OTP
+      // Send reauthentication OTP
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -96,7 +95,7 @@ export const useSignIn = () => {
 
     try {
       // First verify the reauthentication OTP
-      const { error: verifyError, data } = await supabase.auth.verifyOtp({
+      const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: 'email'
@@ -104,7 +103,7 @@ export const useSignIn = () => {
 
       if (verifyError) throw verifyError;
 
-      // After OTP verification, perform the actual login
+      // After OTP is verified, perform the actual login
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
