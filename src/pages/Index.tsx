@@ -34,7 +34,7 @@ export default function Index() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb- px-4">
+      <section className="pt-32 pb-64 px-4">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h1 className="text-5xl md:text-6xl font-bold gradient-text animate-fade-up tracking-tight">
             Mental Health Therapist.
