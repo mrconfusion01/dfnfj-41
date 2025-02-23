@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,7 +57,7 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Auth Form */}
-      <div className="w-1/2 bg-white p-12 flex items-center justify-center">
+      <div className="w-full md:w-1/2 bg-white p-6 md:p-12 flex items-center justify-center">
         <div className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center gap-2">
             <svg width="28" height="28" viewBox="0 0 32 32">
@@ -156,7 +157,7 @@ export default function Auth() {
       </div>
 
       {/* Right Side - Gradient Background and Content */}
-      <div className="w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex flex-col justify-center items-center p-12 text-white">
+      <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex-col justify-center items-center p-12 text-white">
         <div className="max-w-lg text-center space-y-6">
           <div className="flex items-center justify-center gap-3 mb-8">
             <svg width="40" height="40" viewBox="0 0 32 32">
