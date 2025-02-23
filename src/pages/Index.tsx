@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-
 const features = [{
   title: "Mindful Moments",
   description: "Take a breather with short, guided mindfulness exercises to calm your mind and body in just a few minutes.",
@@ -20,9 +19,7 @@ const features = [{
         <span className="text-2xl">🌙</span>
       </div>
 }];
-
 const benefits = ["Affordable Emotional Care", "Instant Emotional Support", "Confidential Conversations", "Boost Your Mental Health", "Effective Stress Relief", "Personalized Guidance", "Empower Your Mind", "24/7 Support Access"];
-
 export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
   return <div className="min-h-screen bg-pattern relative">
@@ -43,34 +40,30 @@ export default function Index() {
       <section className="pt-32 pb-16 px-4 relative">
         <div className="max-w-4xl mx-auto text-center space-y-8 py-[100px]">
           <div className="overflow-hidden">
-            <h1 
-              className="text-5xl md:text-6xl font-bold gradient-text tracking-tight opacity-0 animate-reveal-text"
-              style={{ animationDelay: "0.2s" }}
-            >
+            <h1 className="text-5xl md:text-6xl font-bold gradient-text tracking-tight opacity-0 animate-reveal-text" style={{
+            animationDelay: "0.2s"
+          }}>
               Mental Health Therapist.
             </h1>
           </div>
           <div className="overflow-hidden">
-            <p 
-              className="text-xl text-gray-600 leading-relaxed opacity-0 animate-reveal-text"
-              style={{ animationDelay: "0.4s" }}
-            >
+            <p className="text-xl text-gray-600 leading-relaxed opacity-0 animate-reveal-text" style={{
+            animationDelay: "0.4s"
+          }}>
               Your AI Companion for Mental Wellness
             </p>
           </div>
           <div className="overflow-hidden">
-            <button 
-              className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 opacity-0 animate-reveal-button"
-              style={{ animationDelay: "0.6s" }}
-            >
+            <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 opacity-0 animate-reveal-button" style={{
+            animationDelay: "0.6s"
+          }}>
               Get Started
             </button>
           </div>
           <div className="overflow-hidden">
-            <p 
-              className="text-sm text-gray-500 opacity-0 animate-reveal-text"
-              style={{ animationDelay: "0.8s" }}
-            >
+            <p className="text-sm text-gray-500 opacity-0 animate-reveal-text" style={{
+            animationDelay: "0.8s"
+          }}>
               Powered by AI, designed with care, and here to elevate your emotional well-being to new heights.
             </p>
           </div>
@@ -82,7 +75,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-primary font-bold text-xl">🔷 Features</span>
+              <span className="font-bold text-xl text-zinc-950">🔷 Features</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-[450] text-[#1C1C1C] leading-tight">
               Meet your next-generation mental<br />wellness companion.
