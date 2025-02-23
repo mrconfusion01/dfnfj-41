@@ -8,11 +8,6 @@ export default function Navbar() {
     navigate("/auth");
   };
 
-  const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate("/");
-  };
-
   const scrollToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
     const featuresSection = document.querySelector('#features');
@@ -26,9 +21,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 px-6">
           <div className="flex-shrink-0">
-            <a href="/" onClick={handleLogoClick} className="text-xl font-semibold">
+            <Link to="/" className="text-xl font-semibold">
               Soulmate.ai
-            </a>
+            </Link>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" onClick={scrollToFeatures} className="text-gray-600 hover:text-gray-900">
