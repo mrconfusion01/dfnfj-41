@@ -208,18 +208,18 @@ export default function ChatBot() {
               </div>
             </div>
             
-            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto bg-white/80">
+            <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
               <form onSubmit={handleSubmit} className="relative">
-                <div className="relative">
+                <div className="relative rounded-2xl bg-white/20 backdrop-blur-md p-3">
                   <Input 
                     value={prompt} 
                     onChange={e => setPrompt(e.target.value)} 
                     placeholder="Share your thoughts..." 
-                    className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                   />
                   <button 
                     type="submit" 
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="m22 2-7 20-4-9-9-4Z" />
