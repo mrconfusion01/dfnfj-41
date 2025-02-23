@@ -50,6 +50,7 @@ export default function ChatBot() {
     date: "2 days ago"
   }]);
   const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -159,12 +160,7 @@ export default function ChatBot() {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in or create an account to start chatting.",
-        variant: "destructive",
-      });
-      navigate('/auth');
+      setShowAuthDialog(true);
       return;
     }
 
@@ -211,14 +207,28 @@ export default function ChatBot() {
   };
 
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
-        <div className="absolute inset-0 bg-pattern opacity-5" />
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-400/40 to-cyan-300/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-purple-400/40 to-pink-300/40 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-40 w-64 h-64 bg-gradient-to-br from-indigo-400/40 to-blue-300/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-40 left-40 w-80 h-80 bg-gradient-to-br from-pink-400/40 to-rose-300/40 rounded-full blur-3xl" />
-      </div>
+      <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <AlertDialogContent className="bg-gray-50 rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Authentication Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              To continue chatting with soulmate.ai, please log in or create an account. Your conversations will be saved securely.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                setShowAuthDialog(false);
+                navigate('/auth');
+              }}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Log in / Sign up
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div ref={sidebarRef} className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}>
         <div className="p-4 border-b border-white/20">
