@@ -8,7 +8,7 @@ interface Message {
   content: string;
 }
 
-interface ChatHistory {
+interface ChatHistoryRow {
   id: number;
   user_id: string;
   messages: Message[];
@@ -27,11 +27,12 @@ export const useChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Type assertion to handle the chat_history table
       const { data, error } = await supabase
         .from('chat_history')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .single() as { data: ChatHistoryRow | null; error: any };
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading chat history:', error);
