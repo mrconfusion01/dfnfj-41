@@ -1,4 +1,3 @@
-
 import { SignUpForm } from "./SignUpForm";
 import { SignInForm } from "./SignInForm";
 import { OTPForm } from "./OTPForm";
@@ -21,6 +20,7 @@ export const AuthForm = ({
   const [tempEmail, setTempEmail] = useState<string>("");
   const [tempOtp, setTempOtp] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [requiresOTP, setRequiresOTP] = useState(false);
   const {
     isLoading,
     otpSent,
@@ -28,6 +28,7 @@ export const AuthForm = ({
     signIn,
     signUp,
     verifyOtp,
+    verifySignInOTP,
     resetPassword,
     updatePassword,
     setOtpSent,
@@ -39,6 +40,7 @@ export const AuthForm = ({
     setOtpSent(false);
     setIsResettingPassword(false);
     setShowConfirmation(false);
+    setRequiresOTP(false);
   };
 
   const handleSignUp = async (data: {
@@ -56,18 +58,20 @@ export const AuthForm = ({
   };
 
   const handleSignIn = async (email: string, password: string) => {
-    const success = await signIn(email, password);
-    if (success) {
+    const result = await signIn(email, password);
+    if (result.success) {
       setTempEmail(email);
-      setOtpSent(true);
     }
+  };
+
+  const handleSignInOTPVerify = async (otp: string) => {
+    await verifySignInOTP(otp);
   };
 
   const handleVerifyOtp = async (otp: string) => {
     await verifyOtp(tempEmail, otp);
   };
 
-  // Handler for password reset flow
   const handlePasswordReset = async (e: MouseEvent) => {
     e.preventDefault();
     const form = (e.target as HTMLElement).closest('form');
@@ -76,19 +80,17 @@ export const AuthForm = ({
       if (emailInput) {
         setTempEmail(emailInput.value);
         await resetPassword(emailInput.value);
-        setOtpSent(true); // Show OTP form after sending the code
+        setOtpSent(true);
       }
     }
   };
 
-  // Handler for OTP verification during password reset
   const handlePasswordResetOtp = async (otp: string) => {
     setTempOtp(otp);
-    setIsResettingPassword(true); // Show password reset form after OTP verification
-    setOtpSent(false); // Hide OTP form
+    setIsResettingPassword(true);
+    setOtpSent(false);
   };
 
-  // Handler for updating password after OTP verification
   const handleUpdatePassword = async (password: string) => {
     if (!tempEmail || !tempOtp) {
       console.error("Email or OTP is missing");
@@ -133,6 +135,16 @@ export const AuthForm = ({
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (requiresOTP) {
+    return (
+      <OTPForm 
+        onSubmit={handleSignInOTPVerify}
+        isLoading={isLoading}
+        onBack={handleBack}
+      />
     );
   }
 

@@ -7,6 +7,8 @@ import { validateEmail } from "@/utils/auth-utils";
 
 export const useSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [tempEmail, setTempEmail] = useState("");
+  const [requiresOTP, setRequiresOTP] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,7 +41,7 @@ export const useSignIn = () => {
           description: "Please enter a valid email address",
           variant: "destructive",
         });
-        return false;
+        return { success: false, requiresOTP: false };
       }
 
       // Try to sign in with email and password
@@ -58,7 +60,7 @@ export const useSignIn = () => {
         } else {
           throw error;
         }
-        return false;
+        return { success: false, requiresOTP: false };
       }
 
       if (!data.user) {
@@ -67,7 +69,54 @@ export const useSignIn = () => {
           description: "No user found with this email",
           variant: "destructive",
         });
-        return false;
+        return { success: false, requiresOTP: false };
+      }
+
+      // Password is correct, now send OTP
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+        }
+      });
+
+      if (otpError) throw otpError;
+
+      setTempEmail(email);
+      setRequiresOTP(true);
+      
+      toast({
+        title: "Verification required",
+        description: "Please check your email for the verification code",
+      });
+
+      return { success: true, requiresOTP: true };
+
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { success: false, requiresOTP: false };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOTP = async (otp: string) => {
+    setIsLoading(true);
+    try {
+      const { error, data } = await supabase.auth.verifyOtp({
+        email: tempEmail,
+        token: otp,
+        type: 'email'
+      });
+
+      if (error) throw error;
+
+      if (!data.session) {
+        throw new Error("No session created after OTP verification");
       }
 
       toast({
@@ -75,7 +124,6 @@ export const useSignIn = () => {
         description: "Successfully signed in",
       });
 
-      // Navigate to chatbot on successful login
       navigate('/chatbot');
       return true;
     } catch (error: any) {
@@ -90,5 +138,12 @@ export const useSignIn = () => {
     }
   };
 
-  return { signIn, signInWithGoogle, isLoading };
+  return { 
+    signIn, 
+    signInWithGoogle, 
+    verifyOTP,
+    isLoading,
+    requiresOTP,
+    setRequiresOTP
+  };
 };

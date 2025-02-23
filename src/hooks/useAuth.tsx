@@ -6,7 +6,14 @@ import { useOTPVerification } from "./useOTPVerification";
 import { useProfile } from "./useProfile";
 
 export const useAuth = () => {
-  const { signIn, signInWithGoogle, isLoading: isSignInLoading } = useSignIn();
+  const { 
+    signIn, 
+    signInWithGoogle, 
+    verifyOTP: verifySignInOTP,
+    isLoading: isSignInLoading,
+    requiresOTP,
+    setRequiresOTP 
+  } = useSignIn();
   const { signUp, isLoading: isSignUpLoading } = useSignUp();
   const {
     resetPassword,
@@ -29,10 +36,13 @@ export const useAuth = () => {
     resetPassword,
     updatePassword,
     verifyOtp,
+    verifySignInOTP,
     isLoading: isSignInLoading || isSignUpLoading || isPasswordLoading || isOtpLoading,
     otpSent,
     setOtpSent,
     isResettingPassword,
-    setIsResettingPassword
+    setIsResettingPassword,
+    requiresOTP,
+    setRequiresOTP
   };
 };
