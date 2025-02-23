@@ -7,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 
 interface ProfileData {
   id: string;
-  email?: string;
+  email: string; // Made required
   first_name?: string;
   last_name?: string;
   date_of_birth?: string;
+  created_at?: string; // Added
+  updated_at?: string; // Added
 }
 
 export const useAuth = () => {
@@ -24,10 +26,21 @@ export const useAuth = () => {
     first_name?: string;
     last_name?: string;
     date_of_birth?: string;
+    email?: string;
   }) => {
     try {
+      // First get the existing profile to maintain the email
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
       const profileData: ProfileData = {
         id: userId,
+        email: existingProfile.email, // Use existing email as it's required
         first_name: data.first_name,
         last_name: data.last_name,
         date_of_birth: data.date_of_birth
