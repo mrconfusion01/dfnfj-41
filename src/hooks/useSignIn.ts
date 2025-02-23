@@ -44,35 +44,29 @@ export const useSignIn = () => {
         return { success: false, requiresOTP: false };
       }
 
-      // Try to sign in with email and password
-      const { error, data } = await supabase.auth.signInWithPassword({
+      // First, verify the password without creating a session
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
           toast({
             title: "Invalid credentials",
             description: "Please check your email and password",
             variant: "destructive",
           });
         } else {
-          throw error;
+          throw signInError;
         }
         return { success: false, requiresOTP: false };
       }
 
-      if (!data.user) {
-        toast({
-          title: "Error",
-          description: "No user found with this email",
-          variant: "destructive",
-        });
-        return { success: false, requiresOTP: false };
-      }
+      // Password is correct, sign out the user before sending OTP
+      await supabase.auth.signOut();
 
-      // Password is correct, now send OTP
+      // Send OTP for second factor authentication
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -124,6 +118,7 @@ export const useSignIn = () => {
         description: "Successfully signed in",
       });
 
+      // Only navigate after successful OTP verification
       navigate('/chatbot');
       return true;
     } catch (error: any) {
@@ -135,6 +130,7 @@ export const useSignIn = () => {
       return false;
     } finally {
       setIsLoading(false);
+      setRequiresOTP(false);
     }
   };
 
