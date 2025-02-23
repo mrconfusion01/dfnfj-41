@@ -11,7 +11,12 @@ export const useProfile = () => {
       // First check if user is authenticated
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
-        throw new Error("User must be authenticated to update profile");
+        toast({
+          title: "Email confirmation required",
+          description: "Please check your inbox and confirm your email address to continue.",
+          variant: "destructive",
+        });
+        throw new Error("Please confirm your email to continue");
       }
 
       // Verify the user is updating their own profile
@@ -50,7 +55,7 @@ export const useProfile = () => {
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error updating profile",
+        title: "Action required",
         description: error.message,
         variant: "destructive",
       });
@@ -63,7 +68,12 @@ export const useProfile = () => {
       // First check if user is authenticated
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
-        throw new Error("User must be authenticated to fetch profile");
+        toast({
+          title: "Email confirmation required",
+          description: "Please check your inbox and confirm your email address to continue.",
+          variant: "destructive",
+        });
+        throw new Error("Please confirm your email to continue");
       }
 
       // Verify the user is fetching their own profile
@@ -83,7 +93,7 @@ export const useProfile = () => {
     } catch (error: any) {
       console.error('Error fetching profile:', error);
       toast({
-        title: "Error fetching profile",
+        title: "Action required",
         description: error.message,
         variant: "destructive",
       });
