@@ -233,17 +233,19 @@ export default function ChatBot() {
         )}
       </main>
 
-      <style jsx>{`
-        .overflow-y-auto::-webkit-scrollbar {
-          width: 4px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 2px;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .overflow-y-auto::-webkit-scrollbar {
+            width: 4px;
+          }
+          .overflow-y-auto::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+          }
+        `
+      }} />
     </div>;
 }
