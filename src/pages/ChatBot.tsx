@@ -5,6 +5,7 @@ import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 interface Message {
