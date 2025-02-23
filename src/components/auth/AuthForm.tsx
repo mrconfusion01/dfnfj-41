@@ -65,6 +65,16 @@ export const AuthForm = ({
     await verifyOtp(tempEmail, otp);
   };
 
+  // Wrapper for updatePassword to convert boolean return to void
+  const handleUpdatePassword = async (password: string) => {
+    await updatePassword(password);
+  };
+
+  // Wrapper for resetPassword to handle event and extract email
+  const handlePasswordReset = async (email: string) => {
+    await resetPassword(email);
+  };
+
   if (showConfirmation) {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -117,7 +127,7 @@ export const AuthForm = ({
   if (isResettingPassword && !otpSent) {
     return (
       <PasswordResetForm 
-        onSubmit={updatePassword}
+        onSubmit={handleUpdatePassword}
         isLoading={isLoading}
       />
     );
@@ -130,7 +140,7 @@ export const AuthForm = ({
   return (
     <SignInForm
       onSignIn={handleSignIn}
-      onPasswordReset={resetPassword}
+      onPasswordReset={handlePasswordReset}
       onToggleMode={onToggleMode}
       signInWithGoogle={signInWithGoogle}
       isLoading={isLoading}
