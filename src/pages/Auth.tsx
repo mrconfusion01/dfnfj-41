@@ -30,7 +30,7 @@ export default function Auth() {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
         navigate('/chatbot');
       }
     });

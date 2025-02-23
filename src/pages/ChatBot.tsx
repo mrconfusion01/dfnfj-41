@@ -3,12 +3,16 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 interface Message {
   id: number;
   content: string;
   isAi: boolean;
 }
+
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("llama-3.1-405b");
@@ -36,6 +40,13 @@ export default function ChatBot() {
     title: "Weekly Check-in",
     date: "2 days ago"
   }]);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -49,6 +60,7 @@ export default function ChatBot() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isSidebarOpen]);
+
   useEffect(() => {
     const checkScroll = () => {
       const container = chatContainerRef.current;
@@ -72,6 +84,7 @@ export default function ChatBot() {
       }
     };
   }, [messages]);
+
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
@@ -79,6 +92,7 @@ export default function ChatBot() {
       });
     }
   };
+
   const simulateStreamingResponse = async (response: string) => {
     try {
       setIsTyping(true);
@@ -103,6 +117,7 @@ export default function ChatBot() {
       setCurrentStreamedText("");
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isTyping) return;
@@ -118,17 +133,21 @@ export default function ChatBot() {
     const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
     await simulateStreamingResponse(response);
   };
+
   const stopResponse = () => {
     setIsTyping(false);
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   const handleNewChat = () => {
     setIsConversationMode(false);
     setMessages([]);
     setIsSidebarOpen(false);
   };
+
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
@@ -166,10 +185,13 @@ export default function ChatBot() {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
-          <div className="flex items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer">
-            <User className="w-5 h-5 text-gray-500" />
-            <span className="text-sm font-medium">Profile</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 p-3 hover:bg-white/10 rounded-lg cursor-pointer text-red-500 hover:text-red-600 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </div>
       </div>
 
