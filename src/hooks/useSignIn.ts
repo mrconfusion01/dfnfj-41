@@ -42,25 +42,7 @@ export const useSignIn = () => {
         return false;
       }
 
-      // Verify if credentials are valid without logging in
-      const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({
-        page: 1,
-        perPage: 1,
-        query: email
-      });
-
-      if (userError) throw userError;
-
-      if (!users || users.length === 0) {
-        toast({
-          title: "Invalid credentials",
-          description: "Please check your email and password",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Send reauthentication OTP
+      // Send reauthentication OTP directly
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
