@@ -8,17 +8,32 @@ export const useProfile = () => {
 
   const updateUserProfile = async (userId: string, data: Omit<Partial<ProfileData>, 'id'>) => {
     try {
+      // First check if user is authenticated
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        throw new Error("User must be authenticated to update profile");
+      }
+
+      // Verify the user is updating their own profile
+      if (session.session.user.id !== userId) {
+        throw new Error("Unauthorized to update this profile");
+      }
+
       const { data: currentProfile } = await supabase
         .from('profiles')
         .select('email')
         .eq('id', userId)
         .single();
 
+      if (!currentProfile?.email) {
+        throw new Error("Could not find existing profile");
+      }
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
-          email: currentProfile?.email || '', // Ensure email is always present
+          email: currentProfile.email,
           ...data,
           updated_at: new Date().toISOString()
         }, {
@@ -45,6 +60,17 @@ export const useProfile = () => {
 
   const getUserProfile = async (userId: string): Promise<ProfileData | null> => {
     try {
+      // First check if user is authenticated
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        throw new Error("User must be authenticated to fetch profile");
+      }
+
+      // Verify the user is fetching their own profile
+      if (session.session.user.id !== userId) {
+        throw new Error("Unauthorized to fetch this profile");
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
