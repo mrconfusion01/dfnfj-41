@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -34,7 +35,10 @@ export default function Index() {
 
   return <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFE29F] via-[#FFA99F] to-[#FF719A]" />
+        {/* Updated Base Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#accbee] via-[#e7f0fd] to-[#d299c2]" />
+        
+        {/* Topographic Patterns */}
         <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]" style={{
           backgroundSize: '20px 20px'
         }} />
@@ -42,8 +46,10 @@ export default function Index() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M0 40c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.03)'/%3E%3Cpath d='M0 80c40 0 40 20 80 20v20c-40 0-40-20-80-20z' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E")`,
           backgroundSize: '100px 100px'
         }} />
+        
+        {/* Updated Gradient Blobs */}
         <div className="absolute top-0 left-0 w-[600px] h-[600px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3] rounded-full blur-3xl opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#e6b980] to-[#eacda3] rounded-full blur-3xl opacity-60" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute bottom-0 right-0 w-[700px] h-[700px]">
@@ -51,7 +57,7 @@ export default function Index() {
           <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px]">
-          <div className="absolute inset-0 bg-gradient-to-tl from-[#accbee] to-[#e7f0fd] rounded-full blur-3xl opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-tl from-[#c1c161] to-[#d4d4b1] rounded-full blur-3xl opacity-50" />
           <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] rounded-full" />
         </div>
       </div>
