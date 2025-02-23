@@ -1,13 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } from "lucide-react";
+import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 
@@ -15,6 +27,12 @@ interface Message {
   id: number;
   content: string;
   isAi: boolean;
+}
+
+interface ChatSession {
+  id: number;
+  title: string;
+  date: string;
 }
 
 export default function ChatBot() {
@@ -28,12 +46,7 @@ export default function ChatBot() {
   const [currentStreamedText, setCurrentStreamedText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
-  const isMobile = useIsMobile();
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { fetchProfile } = useProfile();
-  const [chatHistory] = useState([{
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([{
     id: 1,
     title: "Previous Session",
     date: "2 hours ago"
@@ -46,6 +59,14 @@ export default function ChatBot() {
     title: "Weekly Check-in",
     date: "2 days ago"
   }]);
+  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
+  
+  const isMobile = useIsMobile();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const { fetchProfile } = useProfile();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -165,6 +186,21 @@ export default function ChatBot() {
     setIsSidebarOpen(false);
   };
 
+  const handleDeleteSession = (session: ChatSession) => {
+    setSessionToDelete(session);
+  };
+
+  const confirmDelete = () => {
+    if (sessionToDelete) {
+      setChatHistory(prev => prev.filter(chat => chat.id !== sessionToDelete.id));
+      toast({
+        title: "Chat session deleted",
+        description: "The chat session has been permanently deleted.",
+      });
+      setSessionToDelete(null);
+    }
+  };
+
   return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
@@ -190,15 +226,44 @@ export default function ChatBot() {
             <span>New Chat</span>
           </button>
           <div className="space-y-4">
-            {chatHistory.map(chat => <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium text-sm">{chat.title}</p>
-                    <p className="text-xs text-gray-500">{chat.date}</p>
+            {chatHistory.map(chat => (
+              <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="w-5 h-5 text-blue-500" />
+                    <div>
+                      <p className="font-medium text-sm">{chat.title}</p>
+                      <p className="text-xs text-gray-500">{chat.date}</p>
+                    </div>
                   </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSession(chat);
+                        }}
+                        className="p-2 hover:bg-white/20 rounded-full"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete chat session</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this chat session? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-white/10">
