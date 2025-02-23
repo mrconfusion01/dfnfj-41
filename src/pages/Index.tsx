@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 
@@ -46,63 +47,32 @@ export default function Index() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="min-h-screen bg-pattern overflow-hidden">
+    <div className="min-h-screen bg-pattern">
       {/* Decorative Elements */}
-      <svg className="absolute top-0 left-0 w-full h-[800px] -z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path
-          d="M0,0 C20,20 50,20 100,0 L100,100 L0,100 Z"
-          className="fill-[#E8EFFF]/30"
-        />
+      <svg className="decorative-line absolute top-20 left-0 w-64 h-64 -z-10" viewBox="0 0 200 200">
+        <path d="M 0,100 C 20,80 50,20 100,100 S 180,120 200,100" />
       </svg>
-      
+      <svg className="decorative-line absolute top-96 right-0 w-96 h-96 -z-10" viewBox="0 0 200 200">
+        <path d="M 0,100 C 50,150 150,50 200,100" />
+      </svg>
+
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-16 px-4 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="hero-title">
-            Mental Health Therapist<span className="text-[#4F46E5]">.</span>
+      <section className="pt-32 pb-16 px-4">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h1 className="text-5xl md:text-6xl font-bold gradient-text animate-fade-up tracking-tight">
+            Mental Health Therapist.
           </h1>
-          <p className="hero-subtitle">
+          <p className="text-xl text-gray-600 animate-fade-up leading-relaxed" style={{ animationDelay: "0.2s" }}>
             Your AI Companion for Mental Wellness
           </p>
-          <button className="get-started-button group">
-            <span>Get Started</span>
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 20 20" 
-              fill="none" 
-              className="transform group-hover:translate-x-1 transition-transform"
-            >
-              <path 
-                d="M4.16666 10H15.8333M15.8333 10L10.8333 5M15.8333 10L10.8333 15" 
-                stroke="currentColor" 
-                strokeWidth="1.67" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              />
-            </svg>
+          <button className="mt-8 px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+            Get Started
           </button>
-          <p className="hero-description">
+          <p className="text-sm text-gray-500 animate-fade-up" style={{ animationDelay: "0.6s" }}>
             Powered by AI, designed with care, and here to elevate your emotional well-being to new heights.
           </p>
-          
-          {/* Scroll Indicator */}
-          <button 
-            className="absolute left-1/2 bottom-8 transform -translate-x-1/2 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-            onClick={() => window.scrollTo({top: window.innerHeight, behavior: 'smooth'})}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="animate-bounce">
-              <path 
-                d="M12 5L12 19M12 19L19 12M12 19L5 12" 
-                stroke="#4F46E5" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
         </div>
       </section>
 
