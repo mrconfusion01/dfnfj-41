@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Github, MessageSquare, User, Menu, X, Heart } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 interface Message {
@@ -19,6 +21,7 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentStreamedText, setCurrentStreamedText] = useState("");
+  const isMobile = useIsMobile();
   const [chatHistory] = useState([{
     id: 1,
     title: "Previous Session",
@@ -112,7 +115,7 @@ export default function ChatBot() {
           </button>
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-purple-500" />
-            <span className="font-semibold text-gray-900">soulmate.ai</span>
+            {!isMobile && <span className="font-semibold text-gray-900">soulmate.ai</span>}
           </div>
         </div>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 text-white text-sm hover:bg-black/70 transition-colors">
@@ -172,3 +175,4 @@ export default function ChatBot() {
       </main>
     </div>;
 }
+
