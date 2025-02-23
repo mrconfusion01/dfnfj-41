@@ -19,7 +19,6 @@ export const AuthForm = ({
   onToggleMode
 }: AuthFormProps) => {
   const [tempEmail, setTempEmail] = useState<string>("");
-  const [tempPassword, setTempPassword] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const {
     isLoading,
@@ -28,7 +27,6 @@ export const AuthForm = ({
     signIn,
     signUp,
     verifyOtp,
-    verifyOtpAndSignIn,
     resetPassword,
     updatePassword,
     setOtpSent,
@@ -40,8 +38,6 @@ export const AuthForm = ({
     setOtpSent(false);
     setIsResettingPassword(false);
     setShowConfirmation(false);
-    setTempEmail("");
-    setTempPassword("");
   };
 
   const handleSignUp = async (data: {
@@ -62,23 +58,20 @@ export const AuthForm = ({
     const success = await signIn(email, password);
     if (success) {
       setTempEmail(email);
-      setTempPassword(password);
       setOtpSent(true);
     }
   };
 
   const handleVerifyOtp = async (otp: string) => {
-    if (isResettingPassword) {
-      await verifyOtp(tempEmail, otp);
-    } else {
-      await verifyOtpAndSignIn(tempEmail, otp, tempPassword);
-    }
+    await verifyOtp(tempEmail, otp);
   };
 
+  // Wrapper for updatePassword to convert boolean return to void
   const handleUpdatePassword = async (password: string) => {
     await updatePassword(password);
   };
 
+  // Wrapper for resetPassword to handle MouseEvent
   const handlePasswordReset = async (e: MouseEvent) => {
     e.preventDefault();
     const form = (e.target as HTMLElement).closest('form');
