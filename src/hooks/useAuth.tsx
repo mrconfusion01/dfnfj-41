@@ -6,7 +6,7 @@ import { useOTPVerification } from "./useOTPVerification";
 import { useProfile } from "./useProfile";
 
 export const useAuth = () => {
-  const { signIn, signInWithGoogle, isLoading: isSignInLoading } = useSignIn();
+  const { signIn, signInWithGoogle, verifyOtpAndSignIn, isLoading: isSignInLoading } = useSignIn();
   const { signUp, isLoading: isSignUpLoading } = useSignUp();
   const {
     resetPassword,
@@ -29,6 +29,7 @@ export const useAuth = () => {
     resetPassword,
     updatePassword,
     verifyOtp,
+    verifyOtpAndSignIn, // Added this line
     isLoading: isSignInLoading || isSignUpLoading || isPasswordLoading || isOtpLoading,
     otpSent,
     setOtpSent,
