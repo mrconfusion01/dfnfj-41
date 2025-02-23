@@ -21,11 +21,12 @@ export const usePasswordManagement = () => {
 
     setIsLoading(true);
     try {
-      // Send OTP via email
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
+      // Send OTP via email with type reauthentication
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
         options: {
-          shouldCreateUser: false,
+          emailRedirectTo: window.location.origin
         }
       });
       
@@ -50,7 +51,7 @@ export const usePasswordManagement = () => {
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: otp,
-        type: 'email'
+        type: 'recovery'
       });
 
       if (verifyError) throw verifyError;
