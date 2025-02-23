@@ -5,6 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { validateEmail } from "@/utils/auth-utils";
 
+// Import the constants directly from where they are defined
+const SUPABASE_URL = "https://iywsdqzgvmxxohmawjmo.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5d3NkcXpndm14eG9obWF3am1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAyODU3NzksImV4cCI6MjA1NTg2MTc3OX0.di8Qy5oeN-u3L6keO60pGv8tCO_l83UAHFUex-ynoVg";
+
 export const useSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tempEmail, setTempEmail] = useState("");
@@ -45,11 +49,11 @@ export const useSignIn = () => {
       }
 
       // Use REST endpoint to verify credentials without creating a session
-      const response = await fetch(`${supabase.supabaseUrl}/auth/v1/token?grant_type=password`, {
+      const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': supabase.supabaseKey
+          'apikey': SUPABASE_KEY
         },
         body: JSON.stringify({ email, password })
       });
@@ -142,3 +146,4 @@ export const useSignIn = () => {
     setRequiresOTP
   };
 };
+
