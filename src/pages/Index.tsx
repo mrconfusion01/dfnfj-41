@@ -135,7 +135,10 @@ export default function Index() {
           <p className="text-xl text-gray-600 mb-8">
             Be part of millions people around the world using Soulmate in modern era.
           </p>
-          <button className="px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200">
+          <button 
+            onClick={handleGetStarted}
+            className="px-8 py-3 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors duration-200"
+          >
             Get Started
           </button>
         </div>
