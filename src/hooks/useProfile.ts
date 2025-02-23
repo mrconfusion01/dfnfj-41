@@ -6,12 +6,19 @@ import type { ProfileData } from "@/types/auth";
 export const useProfile = () => {
   const { toast } = useToast();
 
-  const updateUserProfile = async (userId: string, data: Partial<ProfileData>) => {
+  const updateUserProfile = async (userId: string, data: Omit<Partial<ProfileData>, 'id'>) => {
     try {
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
+          email: currentProfile?.email || '', // Ensure email is always present
           ...data,
           updated_at: new Date().toISOString()
         }, {
