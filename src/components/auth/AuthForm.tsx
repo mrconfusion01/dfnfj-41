@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword, handleAuthError, handleAuthSuccess, handlePasswordReset } from "@/utils/auth-utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -17,13 +17,19 @@ export const AuthForm = ({
   isSignIn,
   onToggleMode
 }: AuthFormProps) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,6 +39,15 @@ export const AuthForm = ({
       toast({
         title: "Invalid email",
         description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isSignIn && password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
         variant: "destructive"
       });
       return;
@@ -71,13 +86,45 @@ export const AuthForm = ({
 
     try {
       if (isSignIn) {
-        const { error } = await supabase.auth.signInWithPassword({
+        // Check if user exists and sign in
+        const { data: { user }, error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
+        
         if (error) throw error;
-        handleAuthSuccess(true, toast);
+        
+        // Send OTP for verification
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email
+        });
+        
+        if (otpError) throw otpError;
+        
+        setOtpSent(true);
+        toast({
+          title: "OTP Sent",
+          description: "Please check your email for the verification code",
+        });
       } else {
+        // Check if user already exists
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select()
+          .eq('email', email)
+          .single();
+
+        if (existingUser) {
+          toast({
+            title: "Account exists",
+            description: "An account with this email already exists. Please sign in.",
+            variant: "destructive"
+          });
+          onToggleMode();
+          return;
+        }
+
+        // Create new account
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -89,8 +136,14 @@ export const AuthForm = ({
             }
           }
         });
+        
         if (error) throw error;
-        handleAuthSuccess(false, toast);
+        
+        setOtpSent(true);
+        toast({
+          title: "Verification email sent",
+          description: "Please check your email to verify your account",
+        });
       }
     } catch (error: any) {
       handleAuthError(error, toast);
@@ -99,7 +152,40 @@ export const AuthForm = ({
     }
   };
 
-  const handleForgotPassword = async (e: React.MouseEvent) => {
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: isResettingPassword ? 'recovery' : 'signup'
+      });
+
+      if (error) throw error;
+
+      if (isResettingPassword) {
+        // After OTP verification for password reset
+        setIsResettingPassword(true);
+        setOtpSent(false);
+        toast({
+          title: "OTP Verified",
+          description: "Please enter your new password",
+        });
+      } else {
+        // After OTP verification for login/signup
+        handleAuthSuccess(isSignIn, toast);
+        navigate('/chatbot');
+      }
+    } catch (error: any) {
+      handleAuthError(error, toast);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!email) {
       toast({
@@ -109,10 +195,118 @@ export const AuthForm = ({
       });
       return;
     }
-    await handlePasswordReset(email, toast);
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+      
+      if (error) throw error;
+      
+      setIsResettingPassword(true);
+      setOtpSent(true);
+      toast({
+        title: "Reset email sent",
+        description: "Please check your email for the password reset code",
+      });
+    } catch (error: any) {
+      handleAuthError(error, toast);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
+  const handleNewPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully reset. Please sign in.",
+      });
+      setIsResettingPassword(false);
+      onToggleMode();
+    } catch (error: any) {
+      handleAuthError(error, toast);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (otpSent) {
+    return (
+      <form onSubmit={handleOtpSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Enter verification code
+          </h2>
+          <p className="text-sm text-gray-600">
+            Please enter the verification code sent to your email
+          </p>
+        </div>
+
+        <Input
+          type="text"
+          value={otp}
+          onChange={e => setOtp(e.target.value)}
+          placeholder="Enter code"
+          className="h-9 rounded-full bg-white border-gray-300 text-sm"
+          required
+        />
+
+        <Button
+          type="submit"
+          className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
+          disabled={isLoading}
+        >
+          {isLoading ? "Verifying..." : "Verify"}
+        </Button>
+      </form>
+    );
+  }
+
+  if (isResettingPassword && !otpSent) {
+    return (
+      <form onSubmit={handleNewPasswordSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Set new password
+          </h2>
+          <p className="text-sm text-gray-600">
+            Please enter your new password
+          </p>
+        </div>
+
+        <Input
+          type="password"
+          value={newPassword}
+          onChange={e => setNewPassword(e.target.value)}
+          placeholder="New password"
+          className="h-9 rounded-full bg-white border-gray-300 text-sm"
+          required
+        />
+
+        <Button
+          type="submit"
+          className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
+          disabled={isLoading}
+        >
+          {isLoading ? "Updating..." : "Update Password"}
+        </Button>
+      </form>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-gray-900">
           {isSignIn ? "Welcome back" : "Create your account"}
@@ -125,33 +319,6 @@ export const AuthForm = ({
         </p>
       </div>
 
-      <Button type="button" variant="outline" className="w-full h-9 rounded-full justify-center gap-2 text-gray-700 hover:text-gray-900 border border-gray-300 text-sm" onClick={async () => {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google'
-        });
-        if (error) throw error;
-      } catch (error: any) {
-        handleAuthError(error, toast);
-      }
-    }}>
-        <svg className="w-4 h-4" viewBox="0 0 24 24">
-          <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor" />
-        </svg>
-        <span className="text-sm">
-          {isSignIn ? "Sign in with Google" : "Sign up with Google"}
-        </span>
-      </Button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">OR</span>
-        </div>
-      </div>
-
       <div className="space-y-4">
         {!isSignIn && (
           <>
@@ -162,7 +329,7 @@ export const AuthForm = ({
                 onChange={e => setFirstName(e.target.value)}
                 placeholder="First name"
                 className="h-9 rounded-full bg-white border-gray-300 text-sm"
-                required={!isSignIn}
+                required
               />
               <Input
                 type="text"
@@ -170,7 +337,7 @@ export const AuthForm = ({
                 onChange={e => setLastName(e.target.value)}
                 placeholder="Last name"
                 className="h-9 rounded-full bg-white border-gray-300 text-sm"
-                required={!isSignIn}
+                required
               />
             </div>
             <Input
@@ -178,7 +345,7 @@ export const AuthForm = ({
               value={dob}
               onChange={e => setDob(e.target.value)}
               className="h-9 rounded-full bg-white border-gray-300 text-sm"
-              required={!isSignIn}
+              required
             />
           </>
         )}
@@ -200,11 +367,22 @@ export const AuthForm = ({
           className="h-9 rounded-full bg-white border-gray-300 text-sm"
           required
         />
+
+        {!isSignIn && (
+          <Input
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="Confirm password"
+            className="h-9 rounded-full bg-white border-gray-300 text-sm"
+            required
+          />
+        )}
         
         {isSignIn && (
           <button
             type="button"
-            onClick={handleForgotPassword}
+            onClick={handlePasswordReset}
             className="text-sm text-primary hover:underline font-medium block w-full text-right"
           >
             Forgot password?
@@ -266,5 +444,6 @@ export const AuthForm = ({
           )}
         </Button>
       </div>
-    </form>;
+    </form>
+  );
 };
