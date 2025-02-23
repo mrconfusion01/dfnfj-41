@@ -35,7 +35,10 @@ export const AuthForm = ({
     setOtpSent,
     setIsResettingPassword,
     setRequiresOTP,
-    signInWithGoogle
+    signInWithGoogle,
+    sendOTP,
+    timeRemaining,
+    formatTimeRemaining
   } = useAuth();
 
   const handleBack = () => {
@@ -101,6 +104,12 @@ export const AuthForm = ({
     await updatePassword(tempEmail, tempOtp, password);
   };
 
+  const handleResendOTP = async () => {
+    if (tempEmail) {
+      await sendOTP(tempEmail);
+    }
+  };
+
   if (showConfirmation) {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -144,8 +153,11 @@ export const AuthForm = ({
     return (
       <OTPForm 
         onSubmit={handleSignInOTPVerify}
+        onResend={handleResendOTP}
         isLoading={isLoading}
         onBack={handleBack}
+        timeRemaining={timeRemaining}
+        formatTimeRemaining={formatTimeRemaining}
       />
     );
   }
@@ -154,8 +166,11 @@ export const AuthForm = ({
     return (
       <OTPForm 
         onSubmit={isResettingPassword ? handlePasswordResetOtp : handleVerifyOtp}
+        onResend={handleResendOTP}
         isLoading={isLoading}
         onBack={handleBack}
+        timeRemaining={timeRemaining}
+        formatTimeRemaining={formatTimeRemaining}
       />
     );
   }
@@ -183,4 +198,3 @@ export const AuthForm = ({
     />
   );
 };
-

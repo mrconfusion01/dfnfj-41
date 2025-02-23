@@ -24,9 +24,12 @@ export const useAuth = () => {
   } = usePasswordManagement();
   const {
     verifyOtp,
+    sendOTP,
     isLoading: isOtpLoading,
     otpSent,
-    setOtpSent
+    setOtpSent,
+    timeRemaining,
+    formatTimeRemaining
   } = useOTPVerification(isResettingPassword);
 
   return {
@@ -37,12 +40,15 @@ export const useAuth = () => {
     updatePassword,
     verifyOtp,
     verifySignInOTP,
+    sendOTP,
     isLoading: isSignInLoading || isSignUpLoading || isPasswordLoading || isOtpLoading,
     otpSent,
     setOtpSent,
     isResettingPassword,
     setIsResettingPassword,
     requiresOTP,
-    setRequiresOTP
+    setRequiresOTP,
+    timeRemaining,
+    formatTimeRemaining
   };
 };
