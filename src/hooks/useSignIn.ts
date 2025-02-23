@@ -42,7 +42,35 @@ export const useSignIn = () => {
         return false;
       }
 
-      // Send OTP first
+      // First verify password
+      const { error: signInError, data } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
+          toast({
+            title: "Invalid credentials",
+            description: "Please check your email and password",
+            variant: "destructive",
+          });
+        } else {
+          throw signInError;
+        }
+        return false;
+      }
+
+      if (!data.user) {
+        toast({
+          title: "Error",
+          description: "No user found with this email",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // If password is correct, send OTP
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
       });
@@ -71,7 +99,7 @@ export const useSignIn = () => {
     setIsLoading(true);
 
     try {
-      // First verify OTP
+      // Verify OTP
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: otp,
@@ -80,37 +108,9 @@ export const useSignIn = () => {
 
       if (verifyError) throw verifyError;
 
-      // If OTP is verified, proceed with password login
-      const { error: signInError, data } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (signInError) {
-        if (signInError.message.includes('Invalid login credentials')) {
-          toast({
-            title: "Invalid credentials",
-            description: "Please check your password",
-            variant: "destructive",
-          });
-        } else {
-          throw signInError;
-        }
-        return false;
-      }
-
-      if (!data.user) {
-        toast({
-          title: "Error",
-          description: "No user found with this email",
-          variant: "destructive",
-        });
-        return false;
-      }
-
       toast({
         title: "Success",
-        description: "Successfully signed in",
+        description: "Successfully verified and signed in",
       });
 
       navigate('/chatbot');
