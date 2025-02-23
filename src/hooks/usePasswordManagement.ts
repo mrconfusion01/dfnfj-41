@@ -3,13 +3,11 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { handleAuthError } from "@/utils/auth-utils";
-import { useNavigate } from "react-router-dom";
 
 export const usePasswordManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const resetPassword = async (email: string) => {
     if (!email) {
@@ -23,17 +21,16 @@ export const usePasswordManagement = () => {
 
     setIsLoading(true);
     try {
-      // Send OTP instead of password reset email
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
       });
       
       if (error) throw error;
       
       setIsResettingPassword(true);
       toast({
-        title: "Verification code sent",
-        description: "Please check your email for the verification code",
+        title: "Reset email sent",
+        description: "Please check your email for the password reset code",
       });
     } catch (error: any) {
       handleAuthError(error, toast);
@@ -46,33 +43,17 @@ export const usePasswordManagement = () => {
     setIsLoading(true);
 
     try {
-      // Update password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
 
       if (error) throw error;
 
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // If no session, try to sign in with the new password
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: session?.user?.email || '',
-          password: newPassword
-        });
-
-        if (signInError) throw signInError;
-      }
-
       toast({
         title: "Password updated",
-        description: "Your password has been successfully updated and you're now logged in.",
+        description: "Your password has been successfully reset. Please sign in.",
       });
-      
       setIsResettingPassword(false);
-      navigate('/chatbot');
       return true;
     } catch (error: any) {
       handleAuthError(error, toast);

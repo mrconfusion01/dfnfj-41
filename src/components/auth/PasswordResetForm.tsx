@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 
 interface PasswordResetFormProps {
   onSubmit: (password: string) => Promise<void>;
@@ -9,24 +8,10 @@ interface PasswordResetFormProps {
 }
 
 export const PasswordResetForm = ({ onSubmit, isLoading }: PasswordResetFormProps) => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      return;
-    }
-
+    const form = e.target as HTMLFormElement;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
     await onSubmit(password);
   };
 
@@ -41,33 +26,14 @@ export const PasswordResetForm = ({ onSubmit, isLoading }: PasswordResetFormProp
         </p>
       </div>
 
-      <div className="space-y-4">
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-9 rounded-full bg-white border-gray-300 text-sm"
-          required
-        />
-
-        <Input
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          placeholder="Confirm new password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="h-9 rounded-full bg-white border-gray-300 text-sm"
-          required
-        />
-
-        {error && (
-          <p className="text-sm text-red-500">{error}</p>
-        )}
-      </div>
+      <Input
+        id="password"
+        name="password"
+        type="password"
+        placeholder="New password"
+        className="h-9 rounded-full bg-white border-gray-300 text-sm"
+        required
+      />
 
       <Button
         type="submit"
