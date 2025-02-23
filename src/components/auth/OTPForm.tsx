@@ -5,11 +5,14 @@ import { ArrowLeft } from "lucide-react";
 
 interface OTPFormProps {
   onSubmit: (otp: string) => Promise<void>;
+  onResend: () => Promise<void>;
   isLoading: boolean;
-  onBack?: () => void;  // Added back button handler
+  onBack?: () => void;
+  timeRemaining: number;
+  formatTimeRemaining: (seconds: number) => string;
 }
 
-export const OTPForm = ({ onSubmit, isLoading, onBack }: OTPFormProps) => {
+export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, formatTimeRemaining }: OTPFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -38,6 +41,11 @@ export const OTPForm = ({ onSubmit, isLoading, onBack }: OTPFormProps) => {
         <p className="text-sm text-gray-600">
           Please enter the verification code sent to your email
         </p>
+        {timeRemaining > 0 && (
+          <p className="text-sm text-blue-600">
+            Code expires in: {formatTimeRemaining(timeRemaining)}
+          </p>
+        )}
       </div>
 
       <Input
@@ -49,13 +57,25 @@ export const OTPForm = ({ onSubmit, isLoading, onBack }: OTPFormProps) => {
         required
       />
 
-      <Button
-        type="submit"
-        className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
-        disabled={isLoading}
-      >
-        {isLoading ? "Verifying..." : "Verify"}
-      </Button>
+      <div className="space-y-4">
+        <Button
+          type="submit"
+          className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
+          disabled={isLoading}
+        >
+          {isLoading ? "Verifying..." : "Verify"}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onResend}
+          disabled={timeRemaining > 0 || isLoading}
+          className="w-full h-9 rounded-full text-sm"
+        >
+          {timeRemaining > 0 ? `Resend code in ${formatTimeRemaining(timeRemaining)}` : "Resend code"}
+        </Button>
+      </div>
     </form>
   );
 };
