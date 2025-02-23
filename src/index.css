@@ -23,7 +23,7 @@
 }
 
 .benefit-item {
-  @apply px-4 py-2 rounded-full text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-100 whitespace-nowrap;
+  @apply px-6 py-3 rounded-full text-base font-medium bg-white/80 backdrop-blur-sm border border-gray-100 whitespace-nowrap;
 }
 
 .decorative-line {
