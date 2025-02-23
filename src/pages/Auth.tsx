@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Auth() {
@@ -10,6 +10,49 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  
+  const phrases = [
+    "Your personal AI therapist, available 24/7",
+    "Discover peace of mind through AI-guided therapy",
+    "Professional mental support at your fingertips",
+    "Begin your journey to better mental health"
+  ];
+  
+  const [displayText, setDisplayText] = useState("");
+  const [currentPhrase, setCurrentPhrase] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentText = phrases[currentPhrase];
+    const shouldDelete = isDeleting && displayText.length > 0;
+    const shouldType = !isDeleting && displayText.length < currentText.length;
+
+    if (shouldDelete) {
+      const timer = setTimeout(() => {
+        setDisplayText(prev => prev.slice(0, -1));
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+
+    if (shouldType) {
+      const timer = setTimeout(() => {
+        setDisplayText(currentText.slice(0, displayText.length + 1));
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+
+    if (!shouldDelete && !shouldType) {
+      const timer = setTimeout(() => {
+        if (isDeleting) {
+          setCurrentPhrase(prev => (prev + 1) % phrases.length);
+          setIsDeleting(false);
+        } else {
+          setIsDeleting(true);
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [displayText, currentPhrase, isDeleting, phrases]);
   
   return (
     <div className="flex min-h-screen">
@@ -48,18 +91,16 @@ export default function Auth() {
           </div>
 
           {/* Social Sign Up Button */}
-          <div>
-            <Button 
-              variant="outline" 
-              className="w-full justify-center gap-2 text-gray-700 hover:text-gray-900 border border-gray-300"
-              onClick={() => {}}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor"/>
-              </svg>
-              {isSignIn ? "Sign in with Google" : "Sign up with Google"}
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            className="w-full justify-center gap-2 text-gray-700 hover:text-gray-900 border border-gray-300"
+            onClick={() => {}}
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor"/>
+            </svg>
+            {isSignIn ? "Sign in with Google" : "Sign up with Google"}
+          </Button>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -71,11 +112,6 @@ export default function Auth() {
           </div>
 
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              {isSignIn 
-                ? "Enter your credentials to access your account" 
-                : "Enter your email below to create your account"}
-            </p>
             <div>
               <Input
                 type="email"
@@ -136,11 +172,14 @@ export default function Auth() {
             </svg>
             <h1 className="text-4xl font-bold">soulmate.ai</h1>
           </div>
-          <p className="text-2xl font-light">
-            Your AI companion for meaningful connections
-          </p>
+          <div className="h-16">
+            <p className="text-2xl font-light">
+              <span>{displayText}</span>
+              <span className="ml-1 animate-pulse">|</span>
+            </p>
+          </div>
           <p className="text-lg opacity-90">
-            Discover authentic relationships through intelligent matching
+            Experience compassionate AI therapy, anytime, anywhere
           </p>
         </div>
       </div>
