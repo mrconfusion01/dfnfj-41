@@ -27,10 +27,13 @@ export const useAuth = () => {
     last_name?: string;
     date_of_birth?: string;
     email?: string;
-  }) => {
+  }, isNewUser: boolean = false) => {
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) throw new Error('No active session');
+      // Don't check for session if this is a new user signing up
+      if (!isNewUser) {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session) throw new Error('No active session');
+      }
 
       const profileData: ProfileData = {
         id: userId,
@@ -144,7 +147,7 @@ export const useAuth = () => {
           first_name: data.firstName,
           last_name: data.lastName,
           date_of_birth: data.dob
-        });
+        }, true); // Pass true to indicate this is a new user
 
         toast({
           title: "Account created",
