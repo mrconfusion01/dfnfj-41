@@ -7,12 +7,12 @@ import { useNavigate } from "react-router-dom";
 
 interface ProfileData {
   id: string;
-  email: string; // Made required
+  email: string;
   first_name?: string;
   last_name?: string;
   date_of_birth?: string;
-  created_at?: string; // Added
-  updated_at?: string; // Added
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const useAuth = () => {
@@ -40,7 +40,7 @@ export const useAuth = () => {
 
       const profileData: ProfileData = {
         id: userId,
-        email: existingProfile.email, // Use existing email as it's required
+        email: existingProfile.email,
         first_name: data.first_name,
         last_name: data.last_name,
         date_of_birth: data.date_of_birth
@@ -59,18 +59,23 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/chatbot`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          }
+          },
+          // Enable automatic account linking based on email
+          shouldCreateUser: true,
+          emailLinkEnabled: true
         }
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
     } catch (error: any) {
       handleAuthError(error, toast);
     }
@@ -91,13 +96,17 @@ export const useAuth = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          // Enable automatic account linking
+          shouldCreateUser: true,
+          emailLinkEnabled: true
+        }
       });
       
       if (error) throw error;
       
       if (data.user) {
-        // Get user metadata
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -108,7 +117,6 @@ export const useAuth = () => {
           throw profileError;
         }
 
-        // Update profile if it exists
         if (data.user.user_metadata) {
           await updateUserProfile(data.user.id, {
             first_name: data.user.user_metadata.first_name,
@@ -119,7 +127,12 @@ export const useAuth = () => {
       }
       
       const { error: otpError } = await supabase.auth.signInWithOtp({
-        email
+        email,
+        options: {
+          // Enable automatic account linking
+          shouldCreateUser: true,
+          emailLinkEnabled: true
+        }
       });
       
       if (otpError) throw otpError;
