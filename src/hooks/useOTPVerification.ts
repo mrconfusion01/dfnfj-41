@@ -9,13 +9,18 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpExpiryTime, setOtpExpiryTime] = useState<Date | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [timeRemaining, setTimeRemaining] = useState<number>(300); // Initialize with 5 minutes in seconds
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (otpExpiryTime) {
+      // Immediately set initial time remaining
+      const now = new Date().getTime();
+      const expiry = otpExpiryTime.getTime();
+      setTimeRemaining(Math.max(0, Math.floor((expiry - now) / 1000)));
+
       interval = setInterval(() => {
         const now = new Date().getTime();
         const expiry = otpExpiryTime.getTime();
@@ -48,6 +53,8 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
       const expiryTime = new Date(Date.now() + 5 * 60 * 1000);
       setOtpExpiryTime(expiryTime);
       setOtpSent(true);
+      // Reset timeRemaining to 5 minutes when sending new OTP
+      setTimeRemaining(300);
       
       toast({
         title: "OTP Sent",
