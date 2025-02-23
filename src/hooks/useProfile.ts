@@ -1,33 +1,62 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { ProfileData } from "@/types/auth";
 
 export const useProfile = () => {
-  const updateUserProfile = async (userId: string, data: {
-    first_name?: string;
-    last_name?: string;
-    date_of_birth?: string;
-    email?: string;
-  }) => {
+  const { toast } = useToast();
+
+  const updateUserProfile = async (userId: string, data: Partial<ProfileData>) => {
     try {
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
-          email: data.email || '',
-          first_name: data.first_name,
-          last_name: data.last_name,
-          date_of_birth: data.date_of_birth,
+          ...data,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'id'
         });
 
       if (error) throw error;
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated",
+      });
+
     } catch (error: any) {
       console.error('Error updating profile:', error);
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
       throw error;
     }
   };
 
-  return { updateUserProfile };
+  const getUserProfile = async (userId: string): Promise<ProfileData | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
+
+    } catch (error: any) {
+      console.error('Error fetching profile:', error);
+      toast({
+        title: "Error fetching profile",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  return { updateUserProfile, getUserProfile };
 };
