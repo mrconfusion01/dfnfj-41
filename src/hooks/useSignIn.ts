@@ -42,21 +42,59 @@ export const useSignIn = () => {
         return false;
       }
 
-      // Try to sign in with email and password
-      const { error, data } = await supabase.auth.signInWithPassword({
+      // Send OTP first
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+      });
+
+      if (otpError) throw otpError;
+
+      toast({
+        title: "Verification code sent",
+        description: "Please check your email for the verification code",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOtpAndSignIn = async (email: string, otp: string, password: string) => {
+    setIsLoading(true);
+
+    try {
+      // First verify OTP
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email'
+      });
+
+      if (verifyError) throw verifyError;
+
+      // If OTP is verified, proceed with password login
+      const { error: signInError, data } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
           toast({
             title: "Invalid credentials",
-            description: "Please check your email and password",
+            description: "Please check your password",
             variant: "destructive",
           });
         } else {
-          throw error;
+          throw signInError;
         }
         return false;
       }
@@ -75,7 +113,6 @@ export const useSignIn = () => {
         description: "Successfully signed in",
       });
 
-      // Navigate to chatbot on successful login
       navigate('/chatbot');
       return true;
     } catch (error: any) {
@@ -90,5 +127,5 @@ export const useSignIn = () => {
     }
   };
 
-  return { signIn, signInWithGoogle, isLoading };
+  return { signIn, verifyOtpAndSignIn, signInWithGoogle, isLoading };
 };
