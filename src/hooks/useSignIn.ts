@@ -46,7 +46,9 @@ export const useSignIn = () => {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: false // Ensures this is for reauthentication only
+          shouldCreateUser: false, // Ensures this is for reauthentication only
+          channel: 'email', // Explicitly request email channel
+          type: 'sms', // Request OTP instead of magic link
         }
       });
 
