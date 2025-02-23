@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -289,7 +290,7 @@ export default function Auth() {
 
       <div className="hidden md:flex w-1/2 bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 flex-col justify-center items-center p-12 text-white">
         <div className="max-w-lg text-center space-y-6">
-          <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="flex items-center justify-center gap-3 mb-8" onClick={handleLogoClick} role="button" style={{ cursor: 'pointer' }}>
             <svg width="40" height="40" viewBox="0 0 32 32">
               <defs>
                 <linearGradient id="heartGradientLarge" x1="0%" y1="0%" x2="100%" y2="100%">
