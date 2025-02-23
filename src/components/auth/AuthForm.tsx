@@ -74,25 +74,27 @@ export const AuthForm = ({
     if (form) {
       const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
       if (emailInput) {
-        setTempEmail(emailInput.value); // Store email for later use
+        setTempEmail(emailInput.value);
         await resetPassword(emailInput.value);
+        setOtpSent(true); // Show OTP form after sending the code
       }
     }
   };
 
-  // Handler for updating password with OTP
+  // Handler for OTP verification during password reset
+  const handlePasswordResetOtp = async (otp: string) => {
+    setTempOtp(otp);
+    setIsResettingPassword(true); // Show password reset form after OTP verification
+    setOtpSent(false); // Hide OTP form
+  };
+
+  // Handler for updating password after OTP verification
   const handleUpdatePassword = async (password: string) => {
-    if (!tempEmail) {
-      console.error("Email is missing");
+    if (!tempEmail || !tempOtp) {
+      console.error("Email or OTP is missing");
       return;
     }
     await updatePassword(tempEmail, tempOtp, password);
-  };
-
-  // Handler for OTP verification during password reset
-  const handlePasswordResetOtp = async (otp: string) => {
-    setTempOtp(otp); // Store OTP for password update
-    setIsResettingPassword(true);
   };
 
   if (showConfirmation) {
@@ -144,7 +146,7 @@ export const AuthForm = ({
     );
   }
 
-  if (isResettingPassword && !otpSent) {
+  if (isResettingPassword) {
     return (
       <PasswordResetForm 
         onSubmit={handleUpdatePassword}

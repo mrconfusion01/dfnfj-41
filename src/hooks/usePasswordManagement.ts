@@ -21,17 +21,16 @@ export const usePasswordManagement = () => {
 
     setIsLoading(true);
     try {
-      // Use signInWithOtp instead of resetPasswordForEmail
+      // Send OTP via email
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: false // Ensure this is for existing users only
+          shouldCreateUser: false,
         }
       });
       
       if (error) throw error;
       
-      setIsResettingPassword(true);
       toast({
         title: "Code sent",
         description: "Please check your email for the verification code",
