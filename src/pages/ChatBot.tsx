@@ -70,11 +70,18 @@ export default function ChatBot() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  return <div className="min-h-screen bg-gradient-to-br from-rose-400/20 via-blue-400/20 to-cyan-400/20 relative">
+  return <div className="min-h-screen bg-gradient-to-br from-indigo-400/30 via-purple-400/30 to-pink-400/30 relative">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl" />
-        <div className="absolute top-40 right-40 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl" />
+        {/* Topographic Elements */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239fa8da' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
+        }} />
+        {/* Colorful Gradient Blobs */}
+        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-blue-400/40 to-cyan-300/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-purple-400/40 to-pink-300/40 rounded-full blur-3xl" />
+        <div className="absolute top-40 right-40 w-64 h-64 bg-gradient-to-br from-indigo-400/40 to-blue-300/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-40 left-40 w-80 h-80 bg-gradient-to-br from-pink-400/40 to-rose-300/40 rounded-full blur-3xl" />
       </div>
 
       <div className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}>
