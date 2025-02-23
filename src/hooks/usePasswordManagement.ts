@@ -47,13 +47,17 @@ export const usePasswordManagement = () => {
 
     try {
       // First verify the OTP
-      const { error: verifyError } = await supabase.auth.verifyOtp({
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: 'email'
       });
 
       if (verifyError) throw verifyError;
+
+      if (!data.session) {
+        throw new Error("Session not created after OTP verification");
+      }
 
       // After OTP verification, update the password
       const { error: updateError } = await supabase.auth.updateUser({
