@@ -55,9 +55,9 @@ export default function Auth() {
   }, [displayText, currentPhrase, isDeleting, phrases]);
   
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gradient-to-br from-rose-500 via-purple-500 to-cyan-500 md:bg-none">
       {/* Left Side - Auth Form */}
-      <div className="w-full md:w-1/2 bg-white p-6 md:p-12 flex items-center justify-center">
+      <div className="w-full md:w-1/2 p-6 md:p-12 flex items-center justify-center">
         <div className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center gap-2">
             <svg width="28" height="28" viewBox="0 0 32 32">
