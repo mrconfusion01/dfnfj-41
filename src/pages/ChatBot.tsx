@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -141,18 +140,20 @@ export default function ChatBot() {
         </a>
       </header>
 
-      <main className="container mx-auto px-4 py-24 max-w-3xl min-h-screen">
+      <main className="container mx-auto px-4 max-w-3xl min-h-screen flex flex-col">
         {!isConversationMode ? (
-          <div className="text-center space-y-6 mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
-              {welcomeMessage}
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Your Mental Therapist
-            </p>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-6">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-800">
+                {welcomeMessage}
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Your Mental Therapist
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-6 pb-24">
+          <div className="pt-24 space-y-6 pb-24">
             {messages.map((message) => (
               <div
                 key={message.id}
