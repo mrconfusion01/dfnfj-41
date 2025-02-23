@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { OTPForm } from "./OTPForm";
 import { PasswordResetForm } from "./PasswordResetForm";
 import { SignUpForm } from "./SignUpForm";
+import { Database } from "@/integrations/supabase/types";
 
 interface AuthFormProps {
   isSignIn: boolean;
@@ -86,7 +88,7 @@ export const AuthForm = ({
       const { data: profiles } = await supabase
         .from('profiles')
         .select('email')
-        .eq('email', data.email);
+        .eq('email', data.email) as { data: Array<{ email: string }> | null };
 
       if (profiles && profiles.length > 0) {
         toast({
