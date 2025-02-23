@@ -47,7 +47,6 @@ export const useSignIn = () => {
         email,
         options: {
           shouldCreateUser: false, // Ensures this is for reauthentication only
-          channel: 'email', // Explicitly request email channel
           type: 'sms', // Request OTP instead of magic link
         }
       });
