@@ -82,6 +82,8 @@ export const useSignIn = () => {
         description: "Please check your email for the verification code",
       });
 
+      // Navigate to OTP verification page with email
+      navigate('/auth/verify', { state: { email, password } });
       return true;
     } catch (error: any) {
       toast({
