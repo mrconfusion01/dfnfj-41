@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -82,6 +81,7 @@ export default function ChatBot() {
         <div className="absolute bottom-40 left-40 w-80 h-80 bg-gradient-to-br from-pink-400/40 to-rose-300/40 rounded-full blur-3xl" />
       </div>
 
+      {/* Sidebar */}
       <div className={`fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-xl shadow-lg transform transition-transform duration-300 ease-in-out border border-white/20 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-50`}>
         <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
@@ -112,24 +112,28 @@ export default function ChatBot() {
         </div>
       </div>
 
-      <header className="fixed top-0 left-0 right-0 px-4 py-3 bg-gradient-to-r from-white/30 via-white/20 to-white/30 backdrop-blur-md border-b border-white/20 z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button onClick={toggleSidebar} className="p-2 hover:bg-white/20 rounded-lg mr-2 lg:hidden">
-              <Menu className="w-5 h-5" />
-            </button>
+      {/* Header */}
+      <header className="fixed top-4 left-0 right-0 z-40">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="mx-4 px-4 py-3 bg-white/30 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Heart className="w-6 h-6 text-blue-500" />
-              <span className="font-semibold text-gray-900">soulmate.ai</span>
+              <button onClick={toggleSidebar} className="p-2 hover:bg-white/20 rounded-lg mr-2 lg:hidden">
+                <Menu className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-2">
+                <Heart className="w-6 h-6 text-blue-500" />
+                <span className="font-semibold text-gray-900">soulmate.ai</span>
+              </div>
             </div>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 text-white text-sm hover:bg-black/70 transition-colors">
+              <Github className="w-4 h-4" />
+              {!isMobile && "GitHub Repo"}
+            </a>
           </div>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 text-white text-sm hover:bg-black/70 transition-colors">
-            <Github className="w-4 h-4" />
-            {!isMobile && "GitHub Repo"}
-          </a>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="container mx-auto px-4 max-w-3xl min-h-screen pt-20">
         {!isConversationMode ? <div className="flex-1 flex items-center justify-center flex-col min-h-[calc(100vh-8rem)]">
             <div className="text-center space-y-6 mb-8">
