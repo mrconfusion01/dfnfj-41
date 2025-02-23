@@ -20,7 +20,7 @@ export const useAuth = () => {
     isLoading: isOtpLoading,
     otpSent,
     setOtpSent
-  } = useOTPVerification();
+  } = useOTPVerification(isResettingPassword);
 
   return {
     signIn,
@@ -36,4 +36,3 @@ export const useAuth = () => {
     setIsResettingPassword
   };
 };
-
