@@ -17,7 +17,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
     let intervalId: NodeJS.Timeout;
 
     if (otpSent && timeRemaining > 0) {
-      // Start the countdown
+      // Start the countdown only when OTP is sent and there's time remaining
       intervalId = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 0) {
@@ -28,10 +28,9 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
         });
       }, 1000);
 
-      // Cleanup on unmount
       return () => clearInterval(intervalId);
     }
-  }, [otpSent]); // Only depend on otpSent to prevent re-creating interval
+  }, [otpSent, timeRemaining]); // Depend on both otpSent and timeRemaining
 
   const sendOTP = async (email: string) => {
     setIsLoading(true);
@@ -45,6 +44,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
 
       if (error) throw error;
 
+      // Only start the timer when OTP is successfully sent
       setTimeRemaining(300); // Set to 5 minutes (300 seconds)
       setOtpExpiryTime(new Date(Date.now() + 5 * 60 * 1000));
       setOtpSent(true);
@@ -85,6 +85,7 @@ export const useOTPVerification = (isResettingPassword: boolean) => {
 
       if (isResettingPassword) {
         setOtpSent(false);
+        setTimeRemaining(0); // Reset timer when verification is successful
         toast({
           title: "OTP Verified",
           description: "Please enter your new password",
