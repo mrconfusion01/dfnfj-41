@@ -10,9 +10,7 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const user_id = url.searchParams.get('user_id');
-    const session_id = url.pathname.split('/').pop();
+    const { user_id, session_id } = await req.json();
 
     if (!user_id || !session_id) {
       throw new Error('User ID and session ID are required');

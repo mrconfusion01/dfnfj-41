@@ -10,8 +10,8 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const user_id = url.searchParams.get('user_id');
+    // Get user_id from query params
+    const { user_id } = await req.json();
 
     if (!user_id) {
       throw new Error('User ID is required');
