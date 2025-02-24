@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useChat";
 import { useChat } from "@/hooks/useChat";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
@@ -51,6 +51,14 @@ export default function ChatBot() {
     };
     loadUserProfile();
   }, [fetchProfile, fetchSessions]);
+
+  // Add handler for starting new chat
+  const handleStartNewChat = () => {
+    startNewSession();
+    setIsConversationMode(false);
+    setPrompt("");
+    setIsSidebarOpen(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -156,7 +164,10 @@ export default function ChatBot() {
         <div className="p-4">
           {userProfile ? (
             <>
-              <button onClick={startNewSession} className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+              <button 
+                onClick={handleStartNewChat} 
+                className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
                 <Plus className="w-5 h-5" />
                 <span>New Chat</span>
               </button>
