@@ -35,9 +35,15 @@ export const useChat = () => {
         throw new Error(data.error);
       }
       
-      setSessions(data.sessions || []);
+      // Only set sessions if there are any
+      if (data.sessions && data.sessions.length > 0) {
+        setSessions(data.sessions);
+      } else {
+        setSessions([]);
+      }
     } catch (error: any) {
       console.error('Error fetching sessions:', error);
+      setSessions([]); // Reset sessions on error
       toast({
         title: "Error",
         description: "Failed to load chat sessions",
@@ -66,9 +72,19 @@ export const useChat = () => {
         const displayMessages = chatHistory.filter((msg: Message) => msg.role !== 'system');
         setMessages(displayMessages);
         setCurrentSessionId(sessionId);
+      } else {
+        // Handle case where session doesn't exist
+        setMessages([]);
+        setCurrentSessionId(null);
+        toast({
+          title: "Error",
+          description: "Chat session not found",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error('Error loading session:', error);
+      setMessages([]);
       toast({
         title: "Error",
         description: "Failed to load chat session",
