@@ -28,11 +28,13 @@ export const useChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const response = await fetch(`/api/sessions?user_id=${user.id}`);
-      const data = await response.json();
+      const { data, error } = await supabase.functions.invoke('sessions', {
+        method: 'GET',
+        query: { user_id: user.id }
+      });
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (error) {
+        throw new Error(error.message);
       }
       
       // Only set sessions if there are any
@@ -59,15 +61,18 @@ export const useChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const response = await fetch(`/api/session/${sessionId}?user_id=${user.id}`);
-      const data = await response.json();
+      const { data, error } = await supabase.functions.invoke(`session`, {
+        method: 'GET',
+        query: { user_id: user.id },
+        params: { id: sessionId }
+      });
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (error) {
+        throw new Error(error.message);
       }
 
       if (data.session) {
-        const chatHistory = JSON.parse(data.session.chat_history);
+        const chatHistory = data.session.chat_history;
         // Filter out system messages
         const displayMessages = chatHistory.filter((msg: Message) => msg.role !== 'system');
         setMessages(displayMessages);
@@ -119,22 +124,16 @@ export const useChat = () => {
       // Add user message immediately for better UX
       setMessages(prev => [...prev, { role: 'user', content: message }]);
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
           message,
           user_id: user.id,
           session_id: currentSessionId,
-        }),
+        }
       });
-
-      const data = await response.json();
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (error) {
+        throw new Error(error.message);
       }
 
       // Add assistant's response
