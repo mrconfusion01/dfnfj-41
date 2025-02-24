@@ -30,7 +30,7 @@ export const useChat = () => {
 
       const { data, error } = await supabase.functions.invoke('sessions', {
         method: 'GET',
-        query: { user_id: user.id }
+        body: { user_id: user.id }
       });
       
       if (error) {
@@ -61,10 +61,12 @@ export const useChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase.functions.invoke(`session`, {
+      const { data, error } = await supabase.functions.invoke('session', {
         method: 'GET',
-        query: { user_id: user.id },
-        params: { id: sessionId }
+        body: { 
+          user_id: user.id,
+          session_id: sessionId
+        }
       });
       
       if (error) {
