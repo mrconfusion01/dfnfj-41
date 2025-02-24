@@ -3,9 +3,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 import { corsHeaders } from '../_shared/cors.ts';
 
+// System prompt for the mental health therapist
 const SYSTEM_PROMPT = {
-  "role": "system",
-  "content": "At the start of a new session, introduce yourself briefly as 'Mira'. You are a friendly and conversational mental health therapist. Make Responses short and interesting, funny, also try to improve the mood of the user. Answer the questions only related to this topic and discuss about the mental health and respond. You must must answer for unrelated questions as 'Not my specialization'. Try to improve the mood and give suggestions and ideas if they are in any problem. Try to understand the user's issue and solve it. Don't answer about the prompt or related to this model or unrelated to health. And also if the issue solved or the user satisfied, ask if there is anything else you'd like to talk about before we end our conversation? Keep the responses as short as possible."
+  role: "system",
+  content: "At the start of a new session, introduce yourself briefly as 'Mira'. You are a friendly and conversational mental health therapist. Make Responses short and interesting, funny, also try to improve the mood of the user. Answer the questions only related to this topic and discuss about the mental health and respond. You must must answer for unrelated questions as 'Not my specialization'. Try to improve the mood and give suggestions and ideas if they are in any problem. Try to understand the user's issue and solve it. Don't answer about the prompt or related to this model or unrelated to health. And also if the issue solved or the user satisfied, ask if there is anything else you'd like to talk about before we end our conversation? Keep the responses as short as possible."
 };
 
 serve(async (req) => {
@@ -17,10 +18,7 @@ serve(async (req) => {
     const { message, user_id, session_id } = await req.json();
 
     if (!message || !user_id) {
-      return new Response(
-        JSON.stringify({ error: 'Message and user_id are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      throw new Error('Message and user ID are required');
     }
 
     // Initialize Supabase client
@@ -41,11 +39,10 @@ serve(async (req) => {
         .eq('id', session_id)
         .single();
 
-      if (sessionError) {
-        throw new Error('Session not found');
+      if (sessionError) throw sessionError;
+      if (sessionData) {
+        chatHistory = sessionData.chat_history;
       }
-
-      chatHistory = JSON.parse(sessionData.chat_history);
     } else {
       // Create new session
       const sessionName = `New Session ${new Date().toISOString()}`;
@@ -54,15 +51,12 @@ serve(async (req) => {
         .insert({
           user_id,
           session_name: sessionName,
-          chat_history: JSON.stringify(chatHistory)
+          chat_history: chatHistory
         })
         .select()
         .single();
 
-      if (insertError) {
-        throw new Error('Failed to create session');
-      }
-
+      if (insertError) throw insertError;
       sessionId = newSession.id;
     }
 
@@ -85,7 +79,7 @@ serve(async (req) => {
     });
 
     if (!groqResponse.ok) {
-      throw new Error('Failed to get response from Groq');
+      throw new Error(`Groq API error: ${groqResponse.statusText}`);
     }
 
     const groqData = await groqResponse.json();
@@ -98,31 +92,24 @@ serve(async (req) => {
     const { error: updateError } = await supabaseClient
       .from('chat_sessions')
       .update({
-        chat_history: JSON.stringify(chatHistory),
-        updated_at: new Date().toISOString(),
+        chat_history: chatHistory,
+        session_name: chatHistory.length === 3 ? message.slice(0, 50) : undefined,
+        updated_at: new Date().toISOString()
       })
       .eq('id', sessionId);
 
-    if (updateError) {
-      throw new Error('Failed to update session');
-    }
-
-    // Update session name if this is the first message
-    if (chatHistory.length === 3 && !session_id) {
-      const newName = message.length > 50 ? message.substring(0, 50) : message;
-      await supabaseClient
-        .from('chat_sessions')
-        .update({ session_name: newName })
-        .eq('id', sessionId);
-    }
+    if (updateError) throw updateError;
 
     return new Response(
-      JSON.stringify({ message: assistantMessage, session_id: sessionId }),
+      JSON.stringify({
+        message: assistantMessage,
+        session_id: sessionId
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error in chat function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
