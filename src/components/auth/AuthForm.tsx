@@ -158,6 +158,7 @@ export const AuthForm = ({
         onBack={handleBack}
         timeRemaining={timeRemaining}
         formatTimeRemaining={formatTimeRemaining}
+        otpSent={otpSent}
       />
     );
   }
@@ -171,6 +172,7 @@ export const AuthForm = ({
         onBack={handleBack}
         timeRemaining={timeRemaining}
         formatTimeRemaining={formatTimeRemaining}
+        otpSent={otpSent}
       />
     );
   }
