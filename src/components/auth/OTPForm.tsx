@@ -10,15 +10,26 @@ interface OTPFormProps {
   onBack?: () => void;
   timeRemaining: number;
   formatTimeRemaining: (seconds: number) => string;
+  otpSent: boolean;
 }
 
-export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, formatTimeRemaining }: OTPFormProps) => {
+export const OTPForm = ({ 
+  onSubmit, 
+  onResend, 
+  isLoading, 
+  onBack, 
+  timeRemaining, 
+  formatTimeRemaining,
+  otpSent 
+}: OTPFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const otp = (form.elements.namedItem('otp') as HTMLInputElement).value;
     await onSubmit(otp);
   };
+
+  const isCodeExpired = otpSent && timeRemaining === 0;
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-8">
@@ -41,16 +52,18 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
         <p className="text-sm text-gray-600">
           Please enter the verification code sent to your email
         </p>
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Timer className="h-4 w-4 text-blue-500" />
-          {timeRemaining > 0 ? (
-            <span className="text-blue-600">
-              Code expires in: {formatTimeRemaining(timeRemaining)}
-            </span>
-          ) : (
-            <span className="text-red-500">Code has expired</span>
-          )}
-        </div>
+        {otpSent && (
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Timer className="h-4 w-4 text-blue-500" />
+            {timeRemaining > 0 ? (
+              <span className="text-blue-600">
+                Code expires in: {formatTimeRemaining(timeRemaining)}
+              </span>
+            ) : (
+              <span className="text-red-500">Code has expired</span>
+            )}
+          </div>
+        )}
       </div>
 
       <Input
@@ -66,7 +79,7 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
         <Button
           type="submit"
           className="w-full h-9 rounded-full bg-primary hover:bg-primary-hover text-white text-sm"
-          disabled={isLoading || timeRemaining === 0}
+          disabled={isLoading || isCodeExpired}
         >
           {isLoading ? "Verifying..." : "Verify"}
         </Button>
@@ -83,7 +96,7 @@ export const OTPForm = ({ onSubmit, onResend, isLoading, onBack, timeRemaining, 
             : "Resend code"}
         </Button>
 
-        {timeRemaining === 0 && (
+        {isCodeExpired && (
           <p className="text-center text-sm text-red-500">
             This code has expired. Please request a new one using the Resend button.
           </p>
