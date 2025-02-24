@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +20,16 @@ export const useChat = () => {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+
+  // Function to abort ongoing requests
+  const abortCurrentRequest = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    setIsLoading(false);
+  };
 
   // Fetch sessions for the current user
   const fetchSessions = async () => {
@@ -104,6 +113,7 @@ export const useChat = () => {
 
   // Start a new session
   const startNewSession = () => {
+    abortCurrentRequest(); // Abort any ongoing request
     setMessages([]);
     setCurrentSessionId(null);
   };
@@ -123,6 +133,10 @@ export const useChat = () => {
         return;
       }
 
+      // Create new abort controller for this request
+      const controller = new AbortController();
+      setAbortController(controller);
+
       // Add user message immediately for better UX
       setMessages(prev => [...prev, { role: 'user', content: message }]);
 
@@ -138,30 +152,44 @@ export const useChat = () => {
         throw new Error(error.message);
       }
 
-      // Add assistant's response
-      setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-      
-      // If this is a new session, update the session ID and fetch sessions
-      if (!currentSessionId && data.session_id) {
-        setCurrentSessionId(data.session_id);
-        fetchSessions();
+      // Only add assistant's response if not aborted
+      if (!controller.signal.aborted) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
+        
+        // If this is a new session, update the session ID and fetch sessions
+        if (!currentSessionId && data.session_id) {
+          setCurrentSessionId(data.session_id);
+          fetchSessions();
+        }
       }
 
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-      // Add error message to chat
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, there was an error processing your request.'
-      }]);
+      // Only show error if not aborted
+      if (error.name !== 'AbortError') {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'Sorry, there was an error processing your request.'
+        }]);
+      }
     } finally {
+      if (abortController) {
+        setAbortController(null);
+      }
       setIsLoading(false);
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      abortCurrentRequest();
+    };
+  }, []);
 
   return {
     messages,

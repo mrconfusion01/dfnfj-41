@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } from "lucide-react";
@@ -53,7 +52,6 @@ export default function ChatBot() {
     loadUserProfile();
   }, [fetchProfile, fetchSessions]);
 
-  // Add handler for starting new chat
   const handleStartNewChat = () => {
     startNewSession();
     setIsConversationMode(false);
