@@ -179,7 +179,24 @@ export default function ChatBot() {
         setCurrentSessionId(sessionId);
       }
       
-      const result = await chatService.sendMessage(sessionId, userMessage, chatHistory);
+      const formattedChatHistory = messages.map(msg => ({
+        role: msg.isAi ? "assistant" : "user",
+        content: msg.content
+      }));
+      
+      console.log("Sending request with:", {
+        sessionId,
+        userMessage,
+        formattedChatHistory
+      });
+      
+      const result = await chatService.sendMessage(
+        sessionId, 
+        userMessage, 
+        formattedChatHistory
+      );
+      
+      console.log("Response received:", result);
       
       setMessages(prev => [...prev, {
         id: Date.now(),
@@ -187,12 +204,12 @@ export default function ChatBot() {
         isAi: true
       }]);
       
-      setChatHistory(prevChatHistory => {
-        return prevChatHistory;
-      });
-      
     } catch (error) {
       console.error("Error sending message:", error);
+      if (error instanceof Error) {
+        console.error("Error details:", error.message, error.stack);
+      }
+      
       toast({
         title: "Error",
         description: "Failed to get response from AI. Please try again.",
