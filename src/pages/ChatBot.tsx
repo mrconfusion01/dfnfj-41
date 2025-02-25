@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Github, MessageSquare, User, Menu, X, Heart, Plus, ArrowDown, Square, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut, LogIn } from "lucide-react";
@@ -9,35 +10,54 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
-import { useChat } from "@/hooks/useChat";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 
+interface Message {
+  id: number;
+  content: string;
+  isAi: boolean;
+}
+
+interface ChatSession {
+  id: number;
+  title: string;
+  date: string;
+}
+
 export default function ChatBot() {
   const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("llama-3.1-405b");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isConversationMode, setIsConversationMode] = useState(false);
   const [welcomeMessage] = useState(() => welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentStreamedText, setCurrentStreamedText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([{
+    id: 1,
+    title: "Previous Session",
+    date: "2 hours ago"
+  }, {
+    id: 2,
+    title: "Anxiety Discussion",
+    date: "Yesterday"
+  }, {
+    id: 3,
+    title: "Weekly Check-in",
+    date: "2 days ago"
+  }]);
+  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-
-  const { 
-    messages, 
-    sessions, 
-    currentSessionId, 
-    isLoading, 
-    sendMessage, 
-    loadSession, 
-    startNewSession, 
-    fetchSessions 
-  } = useChat();
 
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { fetchProfile } = useProfile();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,18 +66,10 @@ export default function ChatBot() {
       if (user) {
         const profile = await fetchProfile(user.id);
         setUserProfile(profile);
-        fetchSessions();
       }
     };
     loadUserProfile();
-  }, [fetchProfile, fetchSessions]);
-
-  const handleStartNewChat = () => {
-    startNewSession();
-    setIsConversationMode(false);
-    setPrompt("");
-    setIsSidebarOpen(false);
-  };
+  }, [fetchProfile]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -104,9 +116,34 @@ export default function ChatBot() {
     }
   };
 
+  const simulateStreamingResponse = async (response: string) => {
+    try {
+      setIsTyping(true);
+      setCurrentStreamedText("");
+      let accumulatedText = "";
+      for (let i = 0; i < response.length; i++) {
+        if (!isTyping) break;
+        accumulatedText += response[i];
+        setCurrentStreamedText(accumulatedText);
+        await new Promise(resolve => setTimeout(resolve, 30));
+      }
+      if (isTyping) {
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          content: response,
+          isAi: true
+        }]);
+        setTimeout(scrollToBottom, 100);
+      }
+    } finally {
+      setIsTyping(false);
+      setCurrentStreamedText("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || isLoading) return;
+    if (!prompt.trim() || isTyping) return;
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -116,14 +153,44 @@ export default function ChatBot() {
 
     const userMessage = prompt.trim();
     setIsConversationMode(true);
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      content: userMessage,
+      isAi: false
+    }]);
     setPrompt("");
     setTimeout(scrollToBottom, 100);
-    
-    await sendMessage(userMessage);
+    const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
+    await simulateStreamingResponse(response);
+  };
+
+  const stopResponse = () => {
+    setIsTyping(false);
   };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleNewChat = () => {
+    setIsConversationMode(false);
+    setMessages([]);
+    setIsSidebarOpen(false);
+  };
+
+  const handleDeleteSession = (session: ChatSession) => {
+    setSessionToDelete(session);
+  };
+
+  const confirmDelete = () => {
+    if (sessionToDelete) {
+      setChatHistory(prev => prev.filter(chat => chat.id !== sessionToDelete.id));
+      toast({
+        title: "Chat session deleted",
+        description: "The chat session has been permanently deleted."
+      });
+      setSessionToDelete(null);
+    }
   };
 
   return (
@@ -163,30 +230,46 @@ export default function ChatBot() {
         <div className="p-4">
           {userProfile ? (
             <>
-              <button 
-                onClick={handleStartNewChat} 
-                className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
+              <button onClick={handleNewChat} className="w-full mb-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                 <Plus className="w-5 h-5" />
                 <span>New Chat</span>
               </button>
               <div className="space-y-4">
-                {sessions.map((session) => (
-                  <div
-                    key={session.id}
-                    onClick={() => loadSession(session.id)}
-                    className={`p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors ${
-                      currentSessionId === session.id ? 'bg-white/20' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <MessageSquare className="w-5 h-5 text-blue-500" />
-                      <div>
-                        <p className="font-medium text-sm">{session.session_name}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(session.updated_at).toLocaleString()}
-                        </p>
+                {chatHistory.map(chat => (
+                  <div key={chat.id} className="p-3 hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <MessageSquare className="w-5 h-5 text-blue-500" />
+                        <div>
+                          <p className="font-medium text-sm">{chat.title}</p>
+                          <p className="text-xs text-gray-500">{chat.date}</p>
+                        </div>
                       </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button 
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleDeleteSession(chat);
+                            }} 
+                            className="p-2 hover:bg-white/20 rounded-full"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-gray-50 rounded-3xl">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete chat session</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this chat session? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={confirmDelete} className="text-red-50 bg-red-700 hover:bg-red-600">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 ))}
@@ -270,7 +353,7 @@ export default function ChatBot() {
               <div className="relative">
                 <Input
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onChange={e => setPrompt(e.target.value)}
                   placeholder="Share your thoughts..."
                   className="w-full h-12 pl-4 pr-12 text-base rounded-full bg-white/30 backdrop-blur-md border-white/30 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -288,52 +371,34 @@ export default function ChatBot() {
           </div> : <div className="relative h-[calc(100vh-8rem)]">
             <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-6 pb-24 pr-1 scroll-smooth">
               <div className="space-y-6 mr-2">
-                {messages.map((message, index) => (
-                  <div key={index} className={`flex ${message.role === 'assistant' ? "justify-start" : "justify-end"}`}>
-                    <div className={`max-w-[80%] p-4 rounded-2xl ${message.role === 'assistant' ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
+                {messages.map(message => <div key={message.id} className={`flex ${message.isAi ? "justify-start" : "justify-end"}`}>
+                    <div className={`max-w-[80%] p-4 rounded-2xl ${message.isAi ? "bg-white/50 backdrop-blur-sm text-gray-800" : "bg-blue-500 text-white"}`}>
                       {message.content}
                     </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
+                  </div>)}
+                {isTyping && <div className="flex justify-start">
                     <div className="max-w-[80%] p-4 rounded-2xl bg-white/50 backdrop-blur-sm text-gray-800">
-                      <span className="animate-pulse">Mira is typing...</span>
+                      {currentStreamedText}
+                      <span className="animate-pulse">|</span>
                     </div>
-                  </div>
-                )}
+                  </div>}
                 <div ref={messagesEndRef} />
               </div>
             </div>
             
             <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto">
-              {showScrollButton && (
-                <button onClick={scrollToBottom} className="absolute -top-12 right-4 p-2 rounded-full text-white shadow-lg transition-colors bg-zinc-900 hover:bg-zinc-800">
+              {showScrollButton && <button onClick={scrollToBottom} className="absolute -top-12 right-4 p-2 rounded-full text-white shadow-lg transition-colors bg-zinc-900 hover:bg-zinc-800">
                   <ArrowDown className="w-5 h-5" />
-                </button>
-              )}
+                </button>}
 
               <form onSubmit={handleSubmit} className="relative">
                 <div className="relative rounded-2xl bg-white/20 backdrop-blur-md p-3">
-                  <Input
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder={isLoading ? "Wait for Mira to finish..." : "Share your thoughts..."}
-                    disabled={isLoading}
-                    className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  />
-                  <button
-                    type={isLoading ? "button" : "submit"}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <Square className="w-4 h-4" />
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <Input value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={isTyping ? "Wait for AI to finish..." : "Share your thoughts..."} disabled={isTyping} className="w-full h-12 pl-4 pr-12 text-base rounded-xl bg-transparent border-none text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50" />
+                  <button type={isTyping ? "button" : "submit"} onClick={isTyping ? stopResponse : undefined} className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors disabled:opacity-50">
+                    {isTyping ? <Square className="w-4 h-4" /> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="m22 2-7 20-4-9-9-4Z" />
                         <path d="M22 2 11 13" />
-                      </svg>
-                    )}
+                      </svg>}
                   </button>
                 </div>
               </form>
@@ -342,7 +407,7 @@ export default function ChatBot() {
       </main>
 
       <style dangerouslySetInnerHTML={{
-        __html: `
+      __html: `
           .overflow-y-auto::-webkit-scrollbar {
             width: 4px;
           }
@@ -354,7 +419,7 @@ export default function ChatBot() {
             border-radius: 2px;
           }
         `
-      }} />
+    }} />
     </div>
   );
 }
