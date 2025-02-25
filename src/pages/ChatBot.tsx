@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import type { ProfileData } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
+import { chatService } from "@/api/chatService";
 
 const welcomeMessages = ["Hey! How's your day today?", "Hey! How are you feeling today?", "Hi there! Want to talk about your day?", "Hello! Need someone to talk to?", "Hi! Share your thoughts with me"];
 
@@ -36,21 +37,10 @@ export default function ChatBot() {
   const [currentStreamedText, setCurrentStreamedText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
-  const [chatHistory, setChatHistory] = useState<ChatSession[]>([{
-    id: 1,
-    title: "Previous Session",
-    date: "2 hours ago"
-  }, {
-    id: 2,
-    title: "Anxiety Discussion",
-    date: "Yesterday"
-  }, {
-    id: 3,
-    title: "Weekly Check-in",
-    date: "2 days ago"
-  }]);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
 
   const isMobile = useIsMobile();
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -59,6 +49,24 @@ export default function ChatBot() {
   const { fetchProfile } = useProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadChatSessions = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const result = await chatService.getChatSessions();
+          if (result.sessions) {
+            setChatHistory(result.sessions);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading chat sessions:", error);
+      }
+    };
+    
+    loadChatSessions();
+  }, []);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -160,8 +168,40 @@ export default function ChatBot() {
     }]);
     setPrompt("");
     setTimeout(scrollToBottom, 100);
-    const response = "I understand how you're feeling. It's completely normal to experience these emotions. Would you like to tell me more about what's been on your mind?";
-    await simulateStreamingResponse(response);
+    
+    try {
+      setIsTyping(true);
+      
+      let sessionId = currentSessionId;
+      if (!sessionId) {
+        const result = await chatService.createChatSession();
+        sessionId = result.session.id;
+        setCurrentSessionId(sessionId);
+      }
+      
+      const result = await chatService.sendMessage(sessionId, userMessage, chatHistory);
+      
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        content: result.message,
+        isAi: true
+      }]);
+      
+      setChatHistory(prevChatHistory => {
+        return prevChatHistory;
+      });
+      
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get response from AI. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsTyping(false);
+      setTimeout(scrollToBottom, 100);
+    }
   };
 
   const stopResponse = () => {
