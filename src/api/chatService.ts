@@ -6,7 +6,9 @@ const API_URL = "https://flaskdemio.onrender.com";
 // Helper to get the auth token
 const getAuthToken = async () => {
   const { data } = await supabase.auth.getSession();
-  return data.session?.access_token;
+  const token = data.session?.access_token;
+  console.log("Auth token:", token ? token.substring(0, 10) + "..." : "No token");
+  return token;
 };
 
 export const chatService = {
