@@ -174,21 +174,29 @@ export default function ChatBot() {
       
       let sessionId = currentSessionId;
       if (!sessionId) {
-        const result = await chatService.createChatSession();
-        sessionId = result.session.id;
-        setCurrentSessionId(sessionId);
+        console.log("Creating new chat session...");
+        try {
+          const result = await chatService.createChatSession();
+          console.log("Chat session created:", result);
+          sessionId = result.session.id;
+          setCurrentSessionId(sessionId);
+        } catch (sessionError) {
+          console.error("Failed to create chat session:", sessionError);
+          throw new Error("Failed to create chat session");
+        }
       }
       
-      const formattedChatHistory = messages.map(msg => ({
-        role: msg.isAi ? "assistant" : "user",
-        content: msg.content
-      }));
+      console.log("Sending message with sessionId:", sessionId);
       
-      console.log("Sending request with:", {
-        sessionId,
-        userMessage,
-        formattedChatHistory
-      });
+      // Format chat history as a simple array with just the latest messages
+      // For first message, only send empty array
+      const formattedChatHistory = messages.length === 0 ? [] : [
+        // Only include up to 10 most recent messages to keep payload size reasonable
+        ...messages.slice(-10).map(msg => ({
+          role: msg.isAi ? "assistant" : "user",
+          content: msg.content
+        }))
+      ];
       
       const result = await chatService.sendMessage(
         sessionId, 
@@ -196,16 +204,24 @@ export default function ChatBot() {
         formattedChatHistory
       );
       
-      console.log("Response received:", result);
-      
       setMessages(prev => [...prev, {
         id: Date.now(),
         content: result.message,
         isAi: true
       }]);
       
+      // Refresh the chat history
+      try {
+        const { sessions } = await chatService.getChatSessions();
+        setChatHistory(sessions);
+      } catch (error) {
+        console.error("Error refreshing chat sessions:", error);
+      }
+      
     } catch (error) {
       console.error("Error sending message:", error);
+      
+      // Detailed error logging
       if (error instanceof Error) {
         console.error("Error details:", error.message, error.stack);
       }
