@@ -10,6 +10,8 @@ const getAccessToken = async () => {
     console.error("Failed to get session:", error);
     return null;
   }
+  // Log token (first 10 chars for security)
+  console.log("Access Token:", data.session.access_token.substring(0, 10) + "...");
   return data.session.access_token;
 };
 
