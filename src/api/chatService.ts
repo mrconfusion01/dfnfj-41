@@ -4,17 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 const API_URL = "https://flaskdemio.onrender.com";
 
 // Helper to get the auth token
-const getAuthToken = async () => {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  console.log("Auth token:", token ? token.substring(0, 10) + "..." : "No token");
-  return token;
+const getAccessToken = async () => {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session) {
+    console.error("Failed to get session:", error);
+    return null;
+  }
+  return data.session.access_token;
 };
 
 export const chatService = {
   // Get all chat sessions for the user
   async getChatSessions() {
-    const token = await getAuthToken();
+    const token = await getAccessToken();
     if (!token) throw new Error("Not authenticated");
     
     const response = await fetch(`${API_URL}/api/chat/sessions`, {
@@ -29,7 +31,7 @@ export const chatService = {
   
   // Get a specific chat session with its messages
   async getChatSession(sessionId: number) {
-    const token = await getAuthToken();
+    const token = await getAccessToken();
     if (!token) throw new Error("Not authenticated");
     
     const response = await fetch(`${API_URL}/api/chat/sessions/${sessionId}`, {
@@ -44,7 +46,7 @@ export const chatService = {
   
   // Create a new chat session
   async createChatSession(title = "New Chat") {
-    const token = await getAuthToken();
+    const token = await getAccessToken();
     if (!token) throw new Error("Not authenticated");
     
     const response = await fetch(`${API_URL}/api/chat/sessions`, {
@@ -62,7 +64,7 @@ export const chatService = {
   
   // Delete a chat session
   async deleteChatSession(sessionId: number) {
-    const token = await getAuthToken();
+    const token = await getAccessToken();
     if (!token) throw new Error("Not authenticated");
     
     const response = await fetch(`${API_URL}/api/chat/sessions/${sessionId}`, {
@@ -78,7 +80,7 @@ export const chatService = {
   
   // Send a message to the chatbot
   async sendMessage(sessionId: number, message: string, chatHistory: any[] = []) {
-    const token = await getAuthToken();
+    const token = await getAccessToken();
     if (!token) throw new Error("Not authenticated");
     
     const response = await fetch(`${API_URL}/api/chat/message`, {
