@@ -28,6 +28,21 @@ export const chatService = {
   },
   
   // Get a specific chat session with its messages
+  async getChatSession(sessionId: number) {
+    const token = await getAuthToken();
+    if (!token) throw new Error("Not authenticated");
+    
+    const response = await fetch(`${API_URL}/api/chat/sessions/${sessionId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) throw new Error("Failed to fetch chat session");
+    return response.json();
+  },
+  
+  // Create a new chat session
   async createChatSession(title = "New Chat") {
     const token = await getAuthToken();
     if (!token) throw new Error("Not authenticated");
